@@ -3,9 +3,14 @@ package dk.itu.moapd.scootersharing.ahad
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.HapticFeedbackConstants
 import android.widget.Button
 import android.widget.EditText
 import androidx.core.view.WindowCompat
+import dk.itu.moapd.scootersharing.ahad.databinding.ActivityMainBinding
+import dk.itu.moapd.scootersharing.ahad.databinding.ContentLayoutBinding
+import com.google.android.material.snackbar.Snackbar
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -14,42 +19,46 @@ class MainActivity : AppCompatActivity() {
         private val TAG = MainActivity::class.qualifiedName
     }
 
-    // GUI variable
-    private lateinit var scooterName: EditText
-    private lateinit var scooterLocation: EditText
-    private lateinit var startRideButton: Button
-
+    private lateinit var mainBinding: ActivityMainBinding
+    private lateinit var contentBinding: ContentLayoutBinding
     private val scooter: Scooter = Scooter("","")
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        //Edit texts
-        scooterName = findViewById(R.id.edit_text_name)
-        scooterLocation = findViewById(R.id.edit_text_location)
+        mainBinding = ActivityMainBinding.inflate(layoutInflater)
+        contentBinding = ContentLayoutBinding.bind(mainBinding.root)
 
-        //Button
-        startRideButton = findViewById(R.id.start_ride_button)
-        startRideButton.setOnClickListener {
-            if (scooterName.text.isNotEmpty() && scooterLocation.text.isNotEmpty()) {
-                //Update the object attributes
-                val name = scooterName.text.toString().trim()
-                val location = scooterLocation.text.toString().trim()
-                scooter.setName(name)
-                scooter.setLocation(location)
-
-                //Reset the text fields and update the UI
-                scooterName.text.clear()
-                scooterLocation.text.clear()
-                showMessage()
+        with (contentBinding) {
+            startRideButton.setOnClickListener { view ->
+                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                addScooter()
             }
         }
+        setContentView(mainBinding.root)
     }
 
     private fun showMessage() {
-        //Print a message in the 'Logcat' system-
-        Log.d(TAG, scooter.toString())
+        //Snackbar :D
+        Snackbar.make(mainBinding.root, scooter.toString(),Snackbar.LENGTH_LONG).show()
+    }
+    private fun addScooter() {
+        with (contentBinding) {
+            if ( editTextName.text.isNotEmpty() && editTextLocation.text.isNotEmpty()) {
+                //Update the object attributes
+                val name = editTextName.text.toString().trim()
+                val location = editTextLocation.text.toString().trim()
+                scooter.name = name
+                scooter.location = location
+
+                //Reset the text fields and update the UI
+                editTextName.text.clear()
+                editTextLocation.text.clear()
+                showMessage()
+            }
+        }
     }
 }

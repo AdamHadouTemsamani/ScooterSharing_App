@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ScooterSharing</string>
+    <string name="edit_text_name">Name:</string>
 </resources>
