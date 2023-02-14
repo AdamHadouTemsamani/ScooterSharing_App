@@ -59,14 +59,5 @@
         android:layout_width="match_parent"
         android:layout_height="20dp"/>
 
-    <!-- Button to start a ride -->
-
-    <Button
-        android:id="@+id/start_ride_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:text="@string/start_ride_button" />
-
 
 </LinearLayout>
