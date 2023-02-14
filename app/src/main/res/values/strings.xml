@@ -1,4 +1,9 @@
 <resources>
-    <string name="app_name">ScooterSharing</string>
+    <string name="app_name">Scooter Sharing</string>
     <string name="edit_text_name">Name:</string>
+    <string name="start_ride_button">Start Ride</string>
+    <string name="hint_text_name">Enter name</string>
+    <string name="edit_text_location">Location:</string>
+    <string name="hint_text_location">Enter location</string>
+
 </resources>
