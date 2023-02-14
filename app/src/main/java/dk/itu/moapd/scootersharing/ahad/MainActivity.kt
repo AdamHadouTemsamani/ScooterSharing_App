@@ -21,6 +21,7 @@
 
 package dk.itu.moapd.scootersharing.ahad
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -76,42 +77,18 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
-        contentBinding = ContentLayoutBinding.bind(mainBinding.root)
 
-        with (contentBinding) {
-            startRideButton.setOnClickListener { view ->
-                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                addScooter()
+        with (mainBinding) {
+            startRideButton.setOnClickListener {
+                val intent = Intent(baseContext, StartRideActivity::class.java)
+                startActivity(intent)
+            }
+
+            updateRideButton.setOnClickListener {
+                val intent = Intent(baseContext, UpdateRideActivity::class.java)
+                startActivity(intent)
             }
         }
         setContentView(mainBinding.root)
-    }
-
-    /**
-     * Displays the Scooter information using a Snackbar
-    */
-    private fun showMessage() {
-        //Snackbar :D
-        Snackbar.make(mainBinding.root, scooter.toString(),Snackbar.LENGTH_LONG).show()
-    }
-
-    /**
-     * By using ViewBinding updates the values of the Properties of Scooter class
-     */
-    private fun addScooter() {
-        with (contentBinding) {
-            if ( editTextName.text.isNotEmpty() && editTextLocation.text.isNotEmpty()) {
-                //Update the object attributes
-                val name = editTextName.text.toString().trim()
-                val location = editTextLocation.text.toString().trim()
-                scooter.name = name
-                scooter.location = location
-
-                //Reset the text fields and update the UI
-                editTextName.text.clear()
-                editTextLocation.text.clear()
-                showMessage()
-            }
-        }
     }
 }
