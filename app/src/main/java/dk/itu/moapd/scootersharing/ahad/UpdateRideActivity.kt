@@ -15,7 +15,7 @@ class UpdateRideActivity : AppCompatActivity() {
     /**
      * An instance of the Scooter class that has all the information about the scooter
      */
-    private val scooter: Scooter = Scooter("","")
+    private val scooter: Scooter = Scooter("","", System.currentTimeMillis())
 
 
     /**
@@ -43,8 +43,8 @@ class UpdateRideActivity : AppCompatActivity() {
         mainBinding = ActivityUpdateRideBinding.inflate(layoutInflater)
         contentBinding = ContentLayoutBinding.bind(mainBinding.root)
 
-        with (contentBinding) {
-            startRideButton.setOnClickListener { view ->
+        with (mainBinding) {
+            updateRideButton.setOnClickListener { view ->
                 view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                 addScooter()
             }
