@@ -7,6 +7,10 @@
     android:orientation="vertical"
     tools:context=".StartRideActivity">
 
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"/>
 
     <include
         android:id="@+id/content_layout"

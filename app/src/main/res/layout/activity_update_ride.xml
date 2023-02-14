@@ -7,11 +7,23 @@
     android:orientation="vertical"
     tools:context=".UpdateRideActivity">
 
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"/>
+
     <include
         android:id="@+id/content_layout"
         layout="@layout/content_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/start_ride_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="@string/start_ride_button" />
 
     <Button
         android:layout_gravity="center"
@@ -20,6 +32,7 @@
         android:layout_height="wrap_content"
         android:textSize="18sp"
         android:textAllCaps="false"
-        android:text="Open Snackbar"/>
+        android:text="Open Snackbar"
+        android:visibility="invisible"/>
 
 </LinearLayout>
