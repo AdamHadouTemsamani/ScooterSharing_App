@@ -12,11 +12,12 @@ class UpdateRideActivity : AppCompatActivity() {
     private lateinit var mainBinding: ActivityUpdateRideBinding
     private lateinit var contentBinding: ContentLayoutBinding
 
+    companion object {
+        lateinit var ridesDB : RidesDB
+    }
     /**
      * An instance of the Scooter class that has all the information about the scooter
      */
-    private val scooter: Scooter = Scooter("","", System.currentTimeMillis())
-
 
     /**
      * Called when the activity is starting. This is where most initialization should go: calling
@@ -40,6 +41,9 @@ class UpdateRideActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
 
+        // Singleton to share an object between the app activities.
+        ridesDB = RidesDB.get(this)
+
         mainBinding = ActivityUpdateRideBinding.inflate(layoutInflater)
         contentBinding = ContentLayoutBinding.bind(mainBinding.root)
 
@@ -57,7 +61,7 @@ class UpdateRideActivity : AppCompatActivity() {
      */
     private fun showMessage() {
         //Snackbar :D
-        Snackbar.make(mainBinding.root, scooter.toString(), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(mainBinding.root, "Scooter updated", Snackbar.LENGTH_LONG).show()
     }
 
     /**
@@ -69,8 +73,7 @@ class UpdateRideActivity : AppCompatActivity() {
                 //Update the object attributes
                 val name = editTextName.text.toString().trim()
                 val location = editTextLocation.text.toString().trim()
-                scooter.name = name
-                scooter.location = location
+                ridesDB.addScooter(name, location, System.currentTimeMillis())
 
                 //Reset the text fields and update the UI
                 editTextName.text.clear()

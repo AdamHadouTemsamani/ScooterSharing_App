@@ -7,17 +7,17 @@ import androidx.core.view.WindowCompat
 import com.google.android.material.snackbar.Snackbar
 import dk.itu.moapd.scootersharing.ahad.databinding.ActivityStartRideBinding
 import dk.itu.moapd.scootersharing.ahad.databinding.ContentLayoutBinding
+import java.util.*
 
 class StartRideActivity : AppCompatActivity() {
 
     private lateinit var mainBinding: ActivityStartRideBinding
     private lateinit var contentBinding: ContentLayoutBinding
 
-    /**
-     * An instance of the Scooter class that has all the information about the scooter
-     */
-    private val scooter: Scooter = Scooter("","", System.currentTimeMillis())
 
+    companion object {
+        lateinit var ridesDB : RidesDB
+    }
 
     /**
      * Called when the activity is starting. This is where most initialization should go: calling
@@ -41,6 +41,9 @@ class StartRideActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
 
+        // Singleton to share an object between the app activities.
+        ridesDB = RidesDB.get(this)
+
         mainBinding = ActivityStartRideBinding.inflate(layoutInflater)
         contentBinding = ContentLayoutBinding.bind(mainBinding.root)
 
@@ -58,7 +61,19 @@ class StartRideActivity : AppCompatActivity() {
      */
     private fun showMessage() {
         //Snackbar :D
-        Snackbar.make(mainBinding.root, scooter.toString(), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(mainBinding.root, "Scooterride started", Snackbar.LENGTH_LONG).show()
+    }
+
+    /* *
+    * Generate a random timestamp in the last 365 days .
+    *
+    * @return A random timestamp in the last year .
+    */
+    private fun randomDate(): Long {
+        val random = Random()
+        val now = System.currentTimeMillis()
+        val year = random.nextDouble() * 1000 * 60 * 60 * 24 * 365
+        return (now - year).toLong()
     }
 
     /**
@@ -70,8 +85,7 @@ class StartRideActivity : AppCompatActivity() {
                 //Update the object attributes
                 val name = editTextName.text.toString().trim()
                 val location = editTextLocation.text.toString().trim()
-                scooter.name = name
-                scooter.location = location
+                ridesDB.addScooter(name, location, System.currentTimeMillis())
 
                 //Reset the text fields and update the UI
                 editTextName.text.clear()

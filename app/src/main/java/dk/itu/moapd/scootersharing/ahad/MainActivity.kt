@@ -48,6 +48,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mainBinding: ActivityMainBinding
     private lateinit var contentBinding: ContentLayoutBinding
 
+    companion object {
+        lateinit var ridesDB : RidesDB
+        private lateinit var adapter: CustomArrayAdapter
+    }
+
     /**
      * An instance of the Scooter class that has all the information about the scooter
      */
@@ -76,7 +81,18 @@ class MainActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
 
+        // Singleton to share an object between the app activities.
+        ridesDB = RidesDB.get(this)
+
+        val data = ArrayList<Scooter>()
+        for (ride in ridesDB.getRidesList()) {
+            data.add(ride)
+        }
+
+        // Create the custom adapter to populate a list of rides.
+        adapter = CustomArrayAdapter(this, R.layout.list_rides, data)
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
+        mainBinding.listRides.adapter = adapter
 
         with (mainBinding) {
             startRideButton.setOnClickListener {

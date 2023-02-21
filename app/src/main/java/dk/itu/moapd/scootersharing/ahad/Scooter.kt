@@ -3,7 +3,7 @@ package dk.itu.moapd.scootersharing.ahad
 /**
  * A data class that encapsulates the information about a scooter
  */
-class Scooter (var name: String,
+class Scooter (val name: String,
                var location: String,
                var timestamp: Long) {
 

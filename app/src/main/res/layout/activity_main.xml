@@ -43,5 +43,17 @@
         android:layout_margin="5dp"
         android:text="@string/update_ride_button" />
 
+    <Button
+        android:id="@+id/show_rides_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="@string/show_rides_button" />
+
+    <ListView
+        android:id="@+id/list_rides"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </ListView>
 
 </LinearLayout>
