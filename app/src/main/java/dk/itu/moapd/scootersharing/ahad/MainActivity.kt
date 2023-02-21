@@ -26,12 +26,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.HapticFeedbackConstants
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import androidx.core.view.WindowCompat
 import dk.itu.moapd.scootersharing.ahad.databinding.ActivityMainBinding
 import dk.itu.moapd.scootersharing.ahad.databinding.ContentLayoutBinding
 import com.google.android.material.snackbar.Snackbar
+import java.util.function.Predicate.not
 
 
 /**
@@ -85,12 +87,9 @@ class MainActivity : AppCompatActivity() {
         ridesDB = RidesDB.get(this)
 
         val data = ArrayList<Scooter>()
-        for (ride in ridesDB.getRidesList()) {
-            data.add(ride)
-        }
 
         // Create the custom adapter to populate a list of rides.
-        adapter = CustomArrayAdapter(this, R.layout.list_rides, data)
+        adapter = CustomArrayAdapter(this, R.layout.list_rides, ridesDB.getRidesList())
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
         mainBinding.listRides.adapter = adapter
 
@@ -104,7 +103,22 @@ class MainActivity : AppCompatActivity() {
                 val intent = Intent(baseContext, UpdateRideActivity::class.java)
                 startActivity(intent)
             }
+
+            showRidesButton.setOnClickListener {
+                listRides.visibility = if (listRides.visibility == View.VISIBLE){
+                    View.INVISIBLE
+                } else{
+                    View.VISIBLE
+                }
+
+            }
         }
         setContentView(mainBinding.root)
+
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        adapter.notifyDataSetChanged()
     }
 }

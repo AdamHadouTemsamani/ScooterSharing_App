@@ -37,7 +37,7 @@ class RidesDB private constructor(context: Context) {
         print("Scooter already exists")
     }
 
-    fun updateCurrentScooter(location: String) {
+    fun updateCurrentScooter(location: String, timestampt: Long) {
         currentScooter.location = location
     }
 

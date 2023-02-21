@@ -73,7 +73,7 @@ class UpdateRideActivity : AppCompatActivity() {
                 //Update the object attributes
                 val name = editTextName.text.toString().trim()
                 val location = editTextLocation.text.toString().trim()
-                ridesDB.addScooter(name, location, System.currentTimeMillis())
+                ridesDB.updateCurrentScooter(location, System.currentTimeMillis())
 
                 //Reset the text fields and update the UI
                 editTextName.text.clear()
