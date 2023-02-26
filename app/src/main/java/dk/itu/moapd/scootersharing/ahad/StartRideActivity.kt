@@ -81,15 +81,15 @@ class StartRideActivity : AppCompatActivity() {
      */
     private fun addScooter() {
         with (contentBinding) {
-            if ( editTextName.text.isNotEmpty() && editTextLocation.text.isNotEmpty()) {
+            if ( editTextName.editText?.text.toString().isNotEmpty() && editTextLocation.editText?.text.toString().isNotEmpty()) {
                 //Update the object attributes
-                val name = editTextName.text.toString().trim()
-                val location = editTextLocation.text.toString().trim()
+                val name = editTextName.editText.toString().trim()
+                val location = editTextLocation.editText.toString().trim()
                 ridesDB.addScooter(name, location, System.currentTimeMillis())
 
                 //Reset the text fields and update the UI
-                editTextName.text.clear()
-                editTextLocation.text.clear()
+                editTextName.editText?.text?.clear()
+                editTextLocation.editText?.text?.clear()
                 showMessage()
             }
         }

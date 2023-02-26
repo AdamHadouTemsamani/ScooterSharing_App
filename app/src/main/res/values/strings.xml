@@ -11,6 +11,7 @@
     <string name="name">Name</string>
     <string name="location">Location</string>
     <string name="timestamp">Timestamp</string>
+    <string name="open_snackbar">Open Snackbar</string>
 
 
 </resources>

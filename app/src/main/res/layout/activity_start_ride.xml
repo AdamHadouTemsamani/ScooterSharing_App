@@ -16,23 +16,26 @@
         android:id="@+id/content_layout"
         layout="@layout/content_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="163dp" />
 
     <!-- Button to start a ride -->
 
     <Button
         android:id="@+id/start_ride_button"
-        android:layout_width="match_parent"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/start_ride_button"
         android:layout_margin="5dp"
-        android:text="@string/start_ride_button" />
+        android:layout_gravity="end"
+        android:textSize="14sp"/>
 
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Open Snackbar"
+        android:text="@string/open_snackbar"
         android:textAllCaps="false"
         android:textSize="18sp"
         android:visibility="invisible"/>
