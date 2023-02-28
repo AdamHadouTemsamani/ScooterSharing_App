@@ -21,19 +21,10 @@
 
 package dk.itu.moapd.scootersharing.ahad
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.HapticFeedbackConstants
-import android.view.View
-import android.widget.Button
-import android.widget.EditText
 import androidx.core.view.WindowCompat
 import dk.itu.moapd.scootersharing.ahad.databinding.ActivityMainBinding
-import dk.itu.moapd.scootersharing.ahad.databinding.ContentLayoutBinding
-import com.google.android.material.snackbar.Snackbar
-import java.util.function.Predicate.not
 
 
 /**
@@ -48,18 +39,6 @@ class MainActivity : AppCompatActivity() {
      * to all views that have an ID in the corresponding layout.
      */
     private lateinit var mainBinding: ActivityMainBinding
-    private lateinit var contentBinding: ContentLayoutBinding
-
-    companion object {
-        lateinit var ridesDB : RidesDB
-        private lateinit var adapter: CustomArrayAdapter
-    }
-
-    /**
-     * An instance of the Scooter class that has all the information about the scooter
-     */
-    private val scooter: Scooter = Scooter("","", System.currentTimeMillis())
-
 
     /**
      * Called when the activity is starting. This is where most initialization should go: calling
@@ -80,45 +59,16 @@ class MainActivity : AppCompatActivity() {
      * <b><i>Note: Otherwise it is null.</i></b>
      */
     override fun onCreate(savedInstanceState: Bundle?) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
-
-        // Singleton to share an object between the app activities.
-        ridesDB = RidesDB.get(this)
-
-        val data = ArrayList<Scooter>()
-
-        // Create the custom adapter to populate a list of rides.
-        adapter = CustomArrayAdapter(this, R.layout.list_rides, ridesDB.getRidesList())
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
-        mainBinding.listRides.adapter = adapter
 
-        with (mainBinding) {
-            startRideButton.setOnClickListener {
-                val intent = Intent(baseContext, StartRideActivity::class.java)
-                startActivity(intent)
-            }
-
-            updateRideButton.setOnClickListener {
-                val intent = Intent(baseContext, UpdateRideActivity::class.java)
-                startActivity(intent)
-            }
-
-            showRidesButton.setOnClickListener {
-                listRides.visibility = if (listRides.visibility == View.VISIBLE){
-                    View.INVISIBLE
-                } else{
-                    View.VISIBLE
-                }
-
-            }
-        }
+        val mainFragment = MainFragment()
         setContentView(mainBinding.root)
 
+        supportFragmentManager
+            .beginTransaction()
+            .add(R.id.fragment_container_view,mainFragment)
+            .commit()
     }
 
-    override fun onRestart() {
-        super.onRestart()
-        adapter.notifyDataSetChanged()
-    }
 }

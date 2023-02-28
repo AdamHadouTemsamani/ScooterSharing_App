@@ -6,66 +6,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- Scooter Name -->
-    <View
-        android:id="@+id/view"
-        android:layout_width="match_parent"
-        android:layout_height="20dp" />
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/edit_text_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:startIconDrawable="@drawable/baseline_electric_bike_24"
-            app:prefixText="@string/edit_text_name"
-            android:hint="@string/hint_text_name"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-    </LinearLayout>
-
-    <!-- Scooter Location -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_margin="5dp">
-
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/edit_text_location"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/hint_text_location"
-            app:startIconDrawable="@drawable/baseline_add_location_24"
-            app:prefixText="@string/edit_text_location"
-
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="20dp"/>
 
 
 </LinearLayout>

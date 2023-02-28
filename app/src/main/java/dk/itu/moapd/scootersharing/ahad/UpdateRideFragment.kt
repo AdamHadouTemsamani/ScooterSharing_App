@@ -1,27 +1,21 @@
 package dk.itu.moapd.scootersharing.ahad
 
-import android.content.Intent
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
-import dk.itu.moapd.scootersharing.ahad.databinding.FragmentMainBinding
+import com.google.android.material.snackbar.Snackbar
+import dk.itu.moapd.scootersharing.ahad.databinding.ActivityUpdateRideBinding
+import dk.itu.moapd.scootersharing.ahad.databinding.ContentLayoutBinding
+import dk.itu.moapd.scootersharing.ahad.databinding.FragmentStartRideBinding
+import dk.itu.moapd.scootersharing.ahad.databinding.FragmentUpdateRideBinding
 
+class UpdateRideFragment : Fragment() {
 
-/**
- * A fragment to show the `Main Fragment` tab
- */
-class MainFragment : Fragment() {
-
-    /**
-     * View binding is a feature that allows you to more easily write code that interacts with
-     * views. Once view binding is enabled in a module, it generates a binding class for each XML
-     * layout file present in that module. An instance of a binding class contains direct references
-     * to all views that have an ID in the corresponding layout.
-     */
-    private var _binding: FragmentMainBinding? = null
+    private var _binding: FragmentUpdateRideBinding? = null
     private val binding
         get() = checkNotNull(_binding) {
             "Cannot access binding because it is null. Is the view visible?"
@@ -29,14 +23,10 @@ class MainFragment : Fragment() {
 
     companion object {
         lateinit var ridesDB : RidesDB
-        private lateinit var adapter: CustomArrayAdapter
     }
-
     /**
      * An instance of the Scooter class that has all the information about the scooter
      */
-    private val scooter: Scooter = Scooter("","", System.currentTimeMillis())
-
 
     /**
      * Called when the activity is starting. This is where most initialization should go: calling
@@ -56,6 +46,7 @@ class MainFragment : Fragment() {
      * down then this Bundle contains the data it most recently supplied in `onSaveInstanceState()`.
      * <b><i>Note: Otherwise it is null.</i></b>
      */
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -63,12 +54,13 @@ class MainFragment : Fragment() {
         ridesDB = RidesDB.get(requireContext())
     }
 
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentMainBinding.inflate(inflater, container, false)
+        _binding = FragmentUpdateRideBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -76,44 +68,39 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         with (binding) {
-            startRideButton.setOnClickListener {
-                val intent = Intent(activity, StartRideActivity::class.java)
-                startActivity(intent)
-            }
+            editTextName.editText?.isEnabled = false
 
-            updateRideButton.setOnClickListener {
-                val intent = Intent(activity, UpdateRideActivity::class.java)
-                startActivity(intent)
-            }
-
-            showRidesButton.setOnClickListener {
-                // Create the custom adapter to populate a list of rides.
-                adapter = CustomArrayAdapter(requireContext(), R.layout.list_rides, ridesDB.getRidesList())
-                binding.listRides.adapter = adapter
-                listRides.visibility = if (listRides.visibility == View.VISIBLE){
-                    View.INVISIBLE
-                } else{
-                    View.VISIBLE
-                }
-
+            updateRideButton.setOnClickListener { view ->
+                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                addScooter()
             }
         }
-
     }
 
-    /*
-    override fun onResume() {
-        super.onResume()
-        adapter.notifyDataSetChanged()
-    }
-    */
-
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    /**
+     * Displays the Scooter information using a Snackbar
+     */
+    private fun showMessage() {
+        //Snackbar :D
+        Snackbar.make(binding.root, "Scooter updated", Snackbar.LENGTH_LONG).show()
     }
 
+    /**
+     * By using ViewBinding updates the values of the Properties of Scooter class
+     */
+    private fun addScooter() {
+        with (binding) {
+            if ( editTextLocation.editText?.text.toString().isNotEmpty()) {
+                //Update the object attributes
+                val name = editTextName.editText?.text.toString().trim()
+                val location = editTextLocation.editText?.text.toString().trim()
+                ridesDB.updateCurrentScooter(location, System.currentTimeMillis())
 
-
+                //Reset the text fields and update the UI
+                editTextName.editText?.text?.clear()
+                editTextLocation.editText?.text?.clear()
+                showMessage()
+            }
+        }
+    }
 }

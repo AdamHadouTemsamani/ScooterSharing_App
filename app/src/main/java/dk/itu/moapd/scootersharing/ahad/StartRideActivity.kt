@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import androidx.core.view.WindowCompat
 import com.google.android.material.snackbar.Snackbar
+import dk.itu.moapd.scootersharing.ahad.databinding.ActivityMainBinding
 import dk.itu.moapd.scootersharing.ahad.databinding.ActivityStartRideBinding
 import dk.itu.moapd.scootersharing.ahad.databinding.ContentLayoutBinding
 import java.util.*
@@ -12,12 +13,6 @@ import java.util.*
 class StartRideActivity : AppCompatActivity() {
 
     private lateinit var mainBinding: ActivityStartRideBinding
-    private lateinit var contentBinding: ContentLayoutBinding
-
-
-    companion object {
-        lateinit var ridesDB : RidesDB
-    }
 
     /**
      * Called when the activity is starting. This is where most initialization should go: calling
@@ -38,60 +33,16 @@ class StartRideActivity : AppCompatActivity() {
      * <b><i>Note: Otherwise it is null.</i></b>
      */
     override fun onCreate(savedInstanceState: Bundle?) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        super.onCreate(savedInstanceState)
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            super.onCreate(savedInstanceState)
+            mainBinding = ActivityStartRideBinding.inflate(layoutInflater)
 
-        // Singleton to share an object between the app activities.
-        ridesDB = RidesDB.get(this)
+            setContentView(mainBinding.root)
+            val startRideFragment = StartRideFragment()
 
-        mainBinding = ActivityStartRideBinding.inflate(layoutInflater)
-        contentBinding = ContentLayoutBinding.bind(mainBinding.root)
-
-        with (mainBinding) {
-            startRideButton.setOnClickListener { view ->
-                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                addScooter()
-            }
-        }
-        setContentView(mainBinding.root)
-    }
-
-    /**
-     * Displays the Scooter information using a Snackbar
-     */
-    private fun showMessage() {
-        //Snackbar :D
-        Snackbar.make(mainBinding.root, "Scooterride started", Snackbar.LENGTH_LONG).show()
-    }
-
-    /* *
-    * Generate a random timestamp in the last 365 days .
-    *
-    * @return A random timestamp in the last year .
-    */
-    private fun randomDate(): Long {
-        val random = Random()
-        val now = System.currentTimeMillis()
-        val year = random.nextDouble() * 1000 * 60 * 60 * 24 * 365
-        return (now - year).toLong()
-    }
-
-    /**
-     * By using ViewBinding updates the values of the Properties of Scooter class
-     */
-    private fun addScooter() {
-        with (contentBinding) {
-            if ( editTextName.editText?.text.toString().isNotEmpty() && editTextLocation.editText?.text.toString().isNotEmpty()) {
-                //Update the object attributes
-                val name = editTextName.editText?.text.toString().trim()
-                val location = editTextLocation.editText?.text.toString().trim()
-                ridesDB.addScooter(name, location, System.currentTimeMillis())
-
-                //Reset the text fields and update the UI
-                editTextName.editText?.text?.clear()
-                editTextLocation.editText?.text?.clear()
-                showMessage()
-            }
+            supportFragmentManager
+                .beginTransaction()
+                .add(R.id.fragment_container_view,startRideFragment)
+                .commit()
         }
     }
-}

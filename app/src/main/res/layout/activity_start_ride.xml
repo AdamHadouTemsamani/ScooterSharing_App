@@ -1,44 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".StartRideActivity">
 
-    <View
-        android:id="@+id/view"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragment_container_view"
         android:layout_width="match_parent"
-        android:layout_height="70dp"/>
-
-    <include
-        android:id="@+id/content_layout"
-        layout="@layout/content_layout"
-        android:layout_width="match_parent"
-        android:layout_height="163dp" />
-
-    <!-- Button to start a ride -->
-
-    <Button
-        android:id="@+id/start_ride_button"
-        style="@style/Widget.Material3.Button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/start_ride_button"
-        android:layout_margin="5dp"
-        android:layout_gravity="end"
-        android:textSize="14sp"/>
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/open_snackbar"
-        android:textAllCaps="false"
-        android:textSize="18sp"
-        android:visibility="invisible"/>
-
+        android:layout_height="match_parent"
+        android:layout_marginBottom="?android:attr/actionBarSize"
+        android:name="dk.itu.moapd.scootersharing.ahad.StartRideFragment"
+        tools:layout="@layout/fragment_start_ride" />
 
 </LinearLayout>

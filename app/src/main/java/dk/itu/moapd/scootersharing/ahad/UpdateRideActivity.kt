@@ -10,11 +10,7 @@ import dk.itu.moapd.scootersharing.ahad.databinding.ContentLayoutBinding
 
 class UpdateRideActivity : AppCompatActivity() {
     private lateinit var mainBinding: ActivityUpdateRideBinding
-    private lateinit var contentBinding: ContentLayoutBinding
 
-    companion object {
-        lateinit var ridesDB : RidesDB
-    }
     /**
      * An instance of the Scooter class that has all the information about the scooter
      */
@@ -40,47 +36,14 @@ class UpdateRideActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
-
-        // Singleton to share an object between the app activities.
-        ridesDB = RidesDB.get(this)
-
         mainBinding = ActivityUpdateRideBinding.inflate(layoutInflater)
-        contentBinding = ContentLayoutBinding.bind(mainBinding.root)
 
-        with (mainBinding) {
-            updateRideButton.setOnClickListener { view ->
-                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                addScooter()
-            }
-        }
         setContentView(mainBinding.root)
-    }
+        val updateRideFragment = UpdateRideFragment()
 
-    /**
-     * Displays the Scooter information using a Snackbar
-     */
-    private fun showMessage() {
-        //Snackbar :D
-        Snackbar.make(mainBinding.root, "Scooter updated", Snackbar.LENGTH_LONG).show()
-    }
-
-    /**
-     * By using ViewBinding updates the values of the Properties of Scooter class
-     */
-    private fun addScooter() {
-        with (contentBinding) {
-
-            if ( editTextName.editText?.text.toString().isNotEmpty() && editTextLocation.editText?.text.toString().isNotEmpty()) {
-                //Update the object attributes
-                val name = editTextName.editText?.text.toString().trim()
-                val location = editTextLocation.editText?.text.toString().trim()
-                ridesDB.updateCurrentScooter(location, System.currentTimeMillis())
-
-                //Reset the text fields and update the UI
-                editTextName.editText?.text?.clear()
-                editTextLocation.editText?.text?.clear()
-                showMessage()
-            }
-        }
+        supportFragmentManager
+            .beginTransaction()
+            .add(R.id.fragment_container_view,updateRideFragment)
+            .commit()
     }
 }
