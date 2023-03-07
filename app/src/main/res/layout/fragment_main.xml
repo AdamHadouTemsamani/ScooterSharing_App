@@ -24,7 +24,7 @@
             android:layout_height="match_parent"
             android:text="@string/app_name"
             android:textAlignment="center"
-            android:textSize="24sp" />
+            android:textSize="24sp"/>
 
 
     </LinearLayout>
@@ -32,12 +32,14 @@
     <Button
         android:id="@+id/start_ride_button"
         style="@style/Widget.Material3.Button"
-        android:layout_width="125dp"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="5dp"
         android:text="@string/start_ride_button"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        app:icon="@drawable/baseline_play_arrow_24"
+        app:iconGravity="textStart" />
 
     <Button
         android:id="@+id/update_ride_button"
@@ -47,7 +49,9 @@
         android:layout_gravity="center"
         android:layout_margin="5dp"
         android:text="@string/update_ride_button"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        app:icon="@drawable/baseline_create_24"
+        app:iconGravity="textStart"/>
 
     <Button
         android:id="@+id/show_rides_button"
@@ -57,7 +61,9 @@
         android:layout_gravity="center"
         android:layout_margin="5dp"
         android:textSize="14sp"
-        android:text="@string/show_rides_button" />
+        android:text="@string/show_rides_button"
+        app:icon="@drawable/baseline_format_list_bulleted_24"
+        app:iconGravity="textStart"/>
 
     <ListView
         android:id="@+id/list_rides"
