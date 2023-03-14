@@ -1,12 +1,17 @@
 package dk.itu.moapd.scootersharing.ahad
 
+import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dk.itu.moapd.scootersharing.ahad.databinding.ActivityUpdateRideBinding
 import dk.itu.moapd.scootersharing.ahad.databinding.ContentLayoutBinding
@@ -72,7 +77,18 @@ class UpdateRideFragment : Fragment() {
 
             updateRideButton.setOnClickListener { view ->
                 view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                addScooter()
+
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Are you sure you want to update the ride")
+                    .setNegativeButton("Decline") { dialog, which ->
+
+                    }
+                    .setPositiveButton("Accept") { dialog, which ->
+                        addScooter()
+                    }
+                    .show()
+
+
             }
         }
     }
@@ -103,4 +119,5 @@ class UpdateRideFragment : Fragment() {
             }
         }
     }
+
 }

@@ -7,7 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.behavior.SwipeDismissBehavior
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentMainBinding
+import dk.itu.moapd.scootersharing.ahad.databinding.ListRidesBinding
 
 
 /**
@@ -29,7 +36,7 @@ class MainFragment : Fragment() {
 
     companion object {
         lateinit var ridesDB : RidesDB
-        private lateinit var adapter: CustomArrayAdapter
+        private lateinit var adapter: CustomAdapter
     }
 
     /**
@@ -61,6 +68,7 @@ class MainFragment : Fragment() {
 
         // Singleton to share an object between the app activities.
         ridesDB = RidesDB.get(requireContext())
+
     }
 
     override fun onCreateView(
@@ -69,6 +77,8 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
+        // Define the recycler view layout manager and adapter
+        binding.listRides.layoutManager = LinearLayoutManager(activity)
         return binding.root
     }
 
@@ -88,7 +98,8 @@ class MainFragment : Fragment() {
 
             showRidesButton.setOnClickListener {
                 // Create the custom adapter to populate a list of rides.
-                adapter = CustomArrayAdapter(requireContext(), R.layout.list_rides, ridesDB.getRidesList())
+                adapter = CustomAdapter(ridesDB.getRidesList() as ArrayList<Scooter>)
+                binding.listRides.layoutManager = LinearLayoutManager(activity)
                 binding.listRides.adapter = adapter
                 listRides.visibility = if (listRides.visibility == View.VISIBLE){
                     View.INVISIBLE
@@ -97,7 +108,34 @@ class MainFragment : Fragment() {
                 }
 
             }
-        }
+
+            //Adding swipe option
+            val swipeHandler = object : SwipeToDeleteCallback() {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    super.onSwiped(viewHolder, direction)
+
+                    val adapter = listRides.adapter as CustomAdapter
+                    val position = viewHolder.adapterPosition
+
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("Are you sure you want to delete this ride?")
+                        .setMessage("Once you accept you can't undo it.")
+
+                        .setNegativeButton("Decline") { dialog, which ->
+                            adapter.notifyItemChanged(position)
+                            showSnackbar("Ride has not been deleted")
+                        }
+                        .setPositiveButton("Accept") { dialog, which ->
+                            adapter.removeAt(position)
+                            showSnackbar("Ride has been succesfully deleted")
+                        }
+                        .show()
+                }
+            }
+            val itemTouchHelper = ItemTouchHelper(swipeHandler)
+            itemTouchHelper.attachToRecyclerView(binding.listRides)
+
+            }
 
     }
 
@@ -112,6 +150,11 @@ class MainFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    fun showSnackbar(text: String) {
+        Snackbar.make(binding.root, text, Snackbar.LENGTH_SHORT)
+            .show()
     }
 
 

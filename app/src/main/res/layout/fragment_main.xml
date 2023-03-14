@@ -65,11 +65,10 @@
         app:icon="@drawable/baseline_format_list_bulleted_24"
         app:iconGravity="textStart"/>
 
-    <ListView
+    <!-- List items using MaterialDesign Cards -->
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_rides"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="invisible">
-    </ListView>
-
+        android:visibility="invisible"/>
 </LinearLayout>
