@@ -5,7 +5,7 @@ package dk.itu.moapd.scootersharing.ahad
  */
 class Scooter (val name: String,
                var location: String,
-               var timestamp: Long) {
+               var timestamp: String) {
 
     /**
      * Returns a formatted string with the information of the Scooter object

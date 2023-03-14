@@ -1,10 +1,12 @@
 package dk.itu.moapd.scootersharing.ahad
 
+import android.os.Build
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -13,7 +15,10 @@ import dk.itu.moapd.scootersharing.ahad.databinding.ActivityStartRideBinding
 import dk.itu.moapd.scootersharing.ahad.databinding.ContentLayoutBinding
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentMainBinding
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentStartRideBinding
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
+import java.util.Calendar.*
 
 class StartRideFragment : Fragment() {
 
@@ -114,7 +119,9 @@ class StartRideFragment : Fragment() {
                 //Update the object attributes
                 val name = editTextName.editText?.text.toString().trim()
                 val location = editTextLocation.editText?.text.toString().trim()
-                ridesDB.addScooter(name, location, System.currentTimeMillis())
+
+                val date = Calendar.getInstance().time
+                ridesDB.addScooter(name, location, date.toString())
 
                 //Reset the text fields and update the UI
                 editTextName.editText?.text?.clear()

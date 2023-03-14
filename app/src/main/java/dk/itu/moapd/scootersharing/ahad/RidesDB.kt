@@ -1,25 +1,25 @@
 package dk.itu.moapd.scootersharing.ahad
 
 import android.content.Context
-import java.util.Random
+import java.util.*
 import kotlin.collections.ArrayList
 
 class RidesDB private constructor(context: Context) {
 
     private val rides = ArrayList<Scooter>()
-    private var currentScooter = Scooter("name", "location", randomDate())
+    private var currentScooter = Scooter("name", "location", Calendar.getInstance().time.toString())
 
     companion object : RidesDBHolder<RidesDB, Context>(::RidesDB)
 
     init {
         rides.add(
-            Scooter("CPH001", "ITU", randomDate())
+            Scooter("CPH001", "ITU", Calendar.getInstance().time.toString())
         )
         rides.add(
-            Scooter("CPH002", "Fields", randomDate())
+            Scooter("CPH002", "Fields", Calendar.getInstance().time.toString())
         )
         rides.add(
-            Scooter("CPH003", "Lufthavn", randomDate())
+            Scooter("CPH003", "Lufthavn", Calendar.getInstance().time.toString())
         )
         // TODO : You can add more ‘ Scooter ‘ objects if you want to .
     }
@@ -28,7 +28,7 @@ class RidesDB private constructor(context: Context) {
         return rides
     }
 
-    fun addScooter(name: String, location: String, date: Long) {
+    fun addScooter(name: String, location: String, date: String) {
         currentScooter = Scooter(name, location, date)
         if (!rides.contains(currentScooter)) {
             rides.add(currentScooter)
@@ -53,17 +53,6 @@ class RidesDB private constructor(context: Context) {
         return currentScooter.toString()
     }
 
-    /* *
-    * Generate a random timestamp in the last 365 days .
-    *
-    * @return A random timestamp in the last year .
-    */
-    private fun randomDate(): Long {
-        val random = Random()
-        val now = System.currentTimeMillis()
-        val year = random.nextDouble() * 1000 * 60 * 60 * 24 * 365
-        return (now - year).toLong()
-    }
 }
 
 open class RidesDBHolder<out T : Any, in A>(creator: (A) -> T) {

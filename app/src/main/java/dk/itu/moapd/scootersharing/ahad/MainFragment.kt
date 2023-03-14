@@ -42,7 +42,7 @@ class MainFragment : Fragment() {
     /**
      * An instance of the Scooter class that has all the information about the scooter
      */
-    private val scooter: Scooter = Scooter("","", System.currentTimeMillis())
+    private val scooter: Scooter = Scooter("","", "")
 
 
     /**
