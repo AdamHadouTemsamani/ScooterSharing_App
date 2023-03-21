@@ -1,6 +1,7 @@
-package dk.itu.moapd.scootersharing.ahad
+package dk.itu.moapd.scootersharing.ahad.model
 
 import android.content.Context
+import dk.itu.moapd.scootersharing.ahad.model.Scooter
 import java.util.*
 import kotlin.collections.ArrayList
 

@@ -1,15 +1,13 @@
-package dk.itu.moapd.scootersharing.ahad;
+package dk.itu.moapd.scootersharing.ahad.activities;
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
-import com.google.android.gms.auth.api.Auth
-import com.google.android.material.snackbar.Snackbar
+import dk.itu.moapd.scootersharing.ahad.R
 
 class LoginActivity : AppCompatActivity() {
 
@@ -35,12 +33,15 @@ class LoginActivity : AppCompatActivity() {
         val signInIntent = AuthUI.getInstance()
             .createSignInIntentBuilder()
             .setAvailableProviders(providers)
+            .setLogo(R.drawable.ic_launcher_background)
+            .setTheme(R.style.Theme_ScooterSharing)
             .build()
         signInLauncher.launch(signInIntent)
     }
 
     private fun onSignInResult(
-            result: FirebaseAuthUIAuthenticationResult) {
+            result: FirebaseAuthUIAuthenticationResult
+    ) {
         if (result.resultCode == RESULT_OK) {
             Log.d("TAG", "Authentication Successful")
             startMainActivity()
@@ -49,7 +50,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun startMainActivity() {
-        val intent = Intent(this,MainActivity::class.java)
+        val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
     }

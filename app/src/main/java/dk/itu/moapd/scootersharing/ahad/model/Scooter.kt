@@ -1,4 +1,4 @@
-package dk.itu.moapd.scootersharing.ahad
+package dk.itu.moapd.scootersharing.ahad.model
 
 /**
  * A data class that encapsulates the information about a scooter

@@ -1,28 +1,25 @@
-package dk.itu.moapd.scootersharing.ahad
+package dk.itu.moapd.scootersharing.ahad.fragments
 
-import android.app.Activity
-import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.firebase.ui.auth.AuthUI
-import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
-import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
-import com.google.android.material.behavior.SwipeDismissBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import dk.itu.moapd.scootersharing.ahad.model.RidesDB
+import dk.itu.moapd.scootersharing.ahad.model.Scooter
+import dk.itu.moapd.scootersharing.ahad.utils.SwipeToDeleteCallback
+import dk.itu.moapd.scootersharing.ahad.activities.LoginActivity
+import dk.itu.moapd.scootersharing.ahad.activities.StartRideActivity
+import dk.itu.moapd.scootersharing.ahad.activities.UpdateRideActivity
+import dk.itu.moapd.scootersharing.ahad.adapters.CustomAdapter
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentMainBinding
-import dk.itu.moapd.scootersharing.ahad.databinding.ListRidesBinding
 
 
 /**
@@ -100,10 +97,16 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        if (auth.currentUser != null)
+            binding.loginButton.text = "Sign Out"
+        if (auth.currentUser == null)
+            binding.loginButton.text = "Sign In"
+
         with (binding) {
             startRideButton.setOnClickListener {
                 val intent = Intent(activity, StartRideActivity::class.java)
                 startActivity(intent)
+                activity?.finish()
             }
 
             updateRideButton.setOnClickListener {
@@ -129,16 +132,13 @@ class MainFragment : Fragment() {
                 if (auth.currentUser == null) {
                     val intent = Intent(activity, LoginActivity::class.java)
                     startActivity(intent)
-                    loginButton.setText("Sign Out")
+                    loginButton.text = "Sign Out"
                 }
-                if (loginButton.text == "Sign Out") {
+                if (auth.currentUser != null) {
                     auth.signOut()
-                    val intent = Intent(activity, LoginActivity::class.java)
-                    startActivity(intent)
-                    loginButton.setText("Sign In")
+                    loginButton.text = "Sign In"
                 }
                 val user = auth.currentUser
-
             }
 
             //Adding swipe option

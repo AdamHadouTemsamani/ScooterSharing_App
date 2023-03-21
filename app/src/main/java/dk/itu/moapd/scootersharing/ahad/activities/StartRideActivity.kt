@@ -1,19 +1,15 @@
-package dk.itu.moapd.scootersharing.ahad
+package dk.itu.moapd.scootersharing.ahad.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.HapticFeedbackConstants
 import androidx.core.view.WindowCompat
-import com.google.android.material.snackbar.Snackbar
-import dk.itu.moapd.scootersharing.ahad.databinding.ActivityUpdateRideBinding
-import dk.itu.moapd.scootersharing.ahad.databinding.ContentLayoutBinding
+import dk.itu.moapd.scootersharing.ahad.R
+import dk.itu.moapd.scootersharing.ahad.fragments.StartRideFragment
+import dk.itu.moapd.scootersharing.ahad.databinding.ActivityStartRideBinding
 
-class UpdateRideActivity : AppCompatActivity() {
-    private lateinit var mainBinding: ActivityUpdateRideBinding
+class StartRideActivity : AppCompatActivity() {
 
-    /**
-     * An instance of the Scooter class that has all the information about the scooter
-     */
+    private lateinit var mainBinding: ActivityStartRideBinding
 
     /**
      * Called when the activity is starting. This is where most initialization should go: calling
@@ -34,16 +30,16 @@ class UpdateRideActivity : AppCompatActivity() {
      * <b><i>Note: Otherwise it is null.</i></b>
      */
     override fun onCreate(savedInstanceState: Bundle?) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        super.onCreate(savedInstanceState)
-        mainBinding = ActivityUpdateRideBinding.inflate(layoutInflater)
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            super.onCreate(savedInstanceState)
+            mainBinding = ActivityStartRideBinding.inflate(layoutInflater)
 
-        setContentView(mainBinding.root)
-        val updateRideFragment = UpdateRideFragment()
+            setContentView(mainBinding.root)
+            val startRideFragment = StartRideFragment()
 
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.fragment_container_view,updateRideFragment)
-            .commit()
+            supportFragmentManager
+                .beginTransaction()
+                .add(R.id.fragment_container_view,startRideFragment)
+                .commit()
+        }
     }
-}

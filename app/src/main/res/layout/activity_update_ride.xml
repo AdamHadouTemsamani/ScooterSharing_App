@@ -4,14 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".StartRideActivity">
+    tools:context=".activities.StartRideActivity">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="?android:attr/actionBarSize"
-        android:name="dk.itu.moapd.scootersharing.ahad.StartRideFragment"
+        android:name="dk.itu.moapd.scootersharing.ahad.fragments.StartRideFragment"
         tools:layout="@layout/fragment_update_ride" />
 
 </LinearLayout>
