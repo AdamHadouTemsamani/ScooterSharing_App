@@ -19,6 +19,21 @@
             </AndroidTestResultsTableState>
           </value>
         </entry>
+        <entry key="1806411832">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Pixel_6_API_30" value="120" />
+                  <entry key="RFCR90AP6CZ" value="120" />
+                  <entry key="Tests" value="360" />
+                  <entry key="samsung&#10; SM-G996B" value="120" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
       </map>
     </option>
   </component>

@@ -33,6 +33,7 @@ class LoginActivity : AppCompatActivity() {
         val signInIntent = AuthUI.getInstance()
             .createSignInIntentBuilder()
             .setAvailableProviders(providers)
+            .setIsSmartLockEnabled(false)
             .setLogo(R.drawable.ic_launcher_background)
             .setTheme(R.style.Theme_ScooterSharing)
             .build()
