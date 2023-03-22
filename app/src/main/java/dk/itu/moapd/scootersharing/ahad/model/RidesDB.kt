@@ -3,24 +3,25 @@ package dk.itu.moapd.scootersharing.ahad.model
 import android.content.Context
 import dk.itu.moapd.scootersharing.ahad.model.Scooter
 import java.util.*
+import java.util.UUID.randomUUID
 import kotlin.collections.ArrayList
 
 class RidesDB private constructor(context: Context) {
 
     private val rides = ArrayList<Scooter>()
-    private var currentScooter = Scooter("name", "location", Calendar.getInstance().time.toString())
+    private var currentScooter = Scooter(randomUUID(),"name", "location", Calendar.getInstance().time.toString())
 
     companion object : RidesDBHolder<RidesDB, Context>(::RidesDB)
 
     init {
         rides.add(
-            Scooter("CPH001", "ITU", Calendar.getInstance().time.toString())
+            Scooter(randomUUID(),"CPH001", "ITU", Calendar.getInstance().time.toString())
         )
         rides.add(
-            Scooter("CPH002", "Fields", Calendar.getInstance().time.toString())
+            Scooter(randomUUID(),"CPH002", "Fields", Calendar.getInstance().time.toString())
         )
         rides.add(
-            Scooter("CPH003", "Lufthavn", Calendar.getInstance().time.toString())
+            Scooter(randomUUID(),"CPH003", "Lufthavn", Calendar.getInstance().time.toString())
         )
         // TODO : You can add more ‘ Scooter ‘ objects if you want to .
     }
@@ -30,7 +31,7 @@ class RidesDB private constructor(context: Context) {
     }
 
     fun addScooter(name: String, location: String, date: String) {
-        currentScooter = Scooter(name, location, date)
+        currentScooter = Scooter(randomUUID(),name, location, date)
         if (!rides.contains(currentScooter)) {
             rides.add(currentScooter)
             return

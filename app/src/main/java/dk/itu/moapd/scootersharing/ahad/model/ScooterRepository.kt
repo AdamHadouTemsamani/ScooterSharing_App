@@ -3,6 +3,7 @@ package dk.itu.moapd.scootersharing.ahad.model
 import android.content.Context
 import androidx.room.Room
 import dk.itu.moapd.scootersharing.ahad.database.ScooterDatabase
+import java.util.*
 
 private const val DATABASE_NAME = "scooter-database"
 
