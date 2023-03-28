@@ -1,13 +1,18 @@
 package dk.itu.moapd.scootersharing.ahad.adapters
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import dk.itu.moapd.scootersharing.ahad.model.Scooter
 import dk.itu.moapd.scootersharing.ahad.databinding.ListRidesBinding
+import dk.itu.moapd.scootersharing.ahad.utils.ItemClickListener
 
-class CustomAdapter(private val data: ArrayList<Scooter>) :
-    RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
+class CustomAdapter() :
+    ListAdapter<Scooter, CustomAdapter.ViewHolder>(ScooterComparator()) {
 
     private lateinit var deletedScooter: Scooter
     private var scooterIndex: Int = 0
@@ -22,7 +27,19 @@ class CustomAdapter(private val data: ArrayList<Scooter>) :
         }
     }
 
+    class ScooterComparator : DiffUtil.ItemCallback<Scooter>() {
+        override fun areItemsTheSame(oldItem: Scooter, newItem: Scooter): Boolean {
+            return oldItem == newItem
+        }
+
+        override fun areContentsTheSame(oldItem: Scooter, newItem: Scooter): Boolean {
+            return oldItem.name == newItem.name
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        Log.d("TAG()", "Creating a new ViewHolder.")
+
         val inflater = LayoutInflater.from(parent.context)
         val binding = ListRidesBinding.inflate(
             inflater, parent, false
@@ -30,24 +47,12 @@ class CustomAdapter(private val data: ArrayList<Scooter>) :
         return ViewHolder(binding)
     }
 
-    override fun getItemCount() = data.size
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val scooter = data[position]
+        val scooter = getItem(position)
+        Log.d("TAG()", "Populate an item at position: $position")
         holder.bind(scooter)
     }
 
-    fun removeAt(position: Int) {
-        deletedScooter = data.get(position)
-        scooterIndex = position
-
-        data.removeAt(position)
-        notifyItemRemoved(position)
-    }
-
-    fun AddScooter(scooter: Scooter) {
-        data.add(scooter)
-        notifyItemInserted(data.size)
-    }
+    override fun getItemCount() = currentList.size
 
 }

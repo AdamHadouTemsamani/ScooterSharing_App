@@ -7,6 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,13 +22,21 @@ import dk.itu.moapd.scootersharing.ahad.activities.LoginActivity
 import dk.itu.moapd.scootersharing.ahad.activities.StartRideActivity
 import dk.itu.moapd.scootersharing.ahad.activities.UpdateRideActivity
 import dk.itu.moapd.scootersharing.ahad.adapters.CustomAdapter
+import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentMainBinding
+import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModel
+import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModelFactory
+import dk.itu.moapd.scootersharing.ahad.utils.ItemClickListener
 
 
 /**
  * A fragment to show the `Main Fragment` tab
  */
 class MainFragment : Fragment() {
+
+    companion object {
+        private lateinit var adapter: CustomAdapter
+    }
 
     /**
      * View binding is a feature that allows you to more easily write code that interacts with
@@ -34,16 +45,16 @@ class MainFragment : Fragment() {
      * to all views that have an ID in the corresponding layout.
      */
     private var _binding: FragmentMainBinding? = null
+
     private val binding
         get() = checkNotNull(_binding) {
             "Cannot access binding because it is null. Is the view visible?"
         }
+
     private lateinit var auth: FirebaseAuth
 
-
-    companion object {
-        lateinit var ridesDB : RidesDB
-        private lateinit var adapter: CustomAdapter
+    private val scooterViewModel: ScooterViewModel by viewModels {
+        ScooterViewModelFactory((requireActivity().application as ScooterApplication).repository)
     }
 
     /**
@@ -70,15 +81,9 @@ class MainFragment : Fragment() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Singleton to share an object between the app activities.
-        ridesDB = RidesDB.get(requireContext())
-
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
     }
-
-
 
 
     override fun onCreateView(
@@ -89,11 +94,19 @@ class MainFragment : Fragment() {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
         // Define the recycler view layout manager and adapter
         binding.listRides.layoutManager = LinearLayoutManager(activity)
+        // Collecting data from the dataset.
+        adapter = CustomAdapter()
+        scooterViewModel.scooters.observe(viewLifecycleOwner) { scooters ->
+            scooters?.let {
+                adapter.submitList(it)
+            }
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
 
         if (auth.currentUser != null)
             binding.loginButton.text = "Sign Out"
@@ -115,8 +128,10 @@ class MainFragment : Fragment() {
 
             showRidesButton.setOnClickListener {
                 // Create the custom adapter to populate a list of rides.
-                adapter = CustomAdapter(ridesDB.getRidesList() as ArrayList<Scooter>)
                 binding.listRides.layoutManager = LinearLayoutManager(activity)
+                binding.listRides.addItemDecoration(
+                    DividerItemDecoration(activity,DividerItemDecoration.VERTICAL)
+                )
                 binding.listRides.adapter = adapter
                 listRides.visibility = if (listRides.visibility == View.VISIBLE){
                     View.INVISIBLE
@@ -156,7 +171,8 @@ class MainFragment : Fragment() {
                             Log.d("TAG", "Ride has not been deleted")
                         }
                         .setPositiveButton("Accept") { dialog, which ->
-                            adapter.removeAt(position)
+                            val scooter = adapter.currentList[position]
+                            scooterViewModel.delete(scooter)
                             Log.d("TAG", "Ride has been succesfully deleted")
                         }
                         .show()
@@ -164,22 +180,12 @@ class MainFragment : Fragment() {
             }
             val itemTouchHelper = ItemTouchHelper(swipeHandler)
             itemTouchHelper.attachToRecyclerView(binding.listRides)
-
             }
-
     }
-
-    /*
-    override fun onResume() {
-        super.onResume()
-        adapter.notifyDataSetChanged()
-    }
-    */
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
 
 }

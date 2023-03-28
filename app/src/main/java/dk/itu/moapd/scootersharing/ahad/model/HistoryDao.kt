@@ -5,21 +5,18 @@ import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 @Dao
-interface ScooterDao {
+interface HistoryDao {
 
     @Insert
-    suspend fun insert(scooter: Scooter)
-
-    @Update
-    suspend fun update(scooter: Scooter)
+    suspend fun insert(historyRide: History)
 
     @Delete
-    suspend fun delete(scooter: Scooter)
+    suspend fun delete(historyRide: History)
 
     @Query("SELECT * FROM scooter")
-    fun getScooters() : Flow<List<Scooter>>
+    fun getPreviousRides() : Flow<List<History>>
 
     @Query("SELECT * FROM scooter WHERE id=(:id)")
-    fun getScooter(id: Int) : Scooter
+    fun getPreviousRide(id: Int) : History
 
 }

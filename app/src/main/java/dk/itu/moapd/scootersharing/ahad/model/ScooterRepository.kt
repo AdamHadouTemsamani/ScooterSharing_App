@@ -4,34 +4,28 @@ import android.content.Context
 import androidx.room.Room
 import dk.itu.moapd.scootersharing.ahad.database.ScooterDatabase
 import java.util.*
+import kotlinx.coroutines.flow.Flow
+import androidx.annotation.WorkerThread
 
-private const val DATABASE_NAME = "scooter-database"
+private const val DATABASE_NAME = "scooter_database"
 
-class ScooterRepository private constructor(context: Context) {
+class ScooterRepository(private val scooterDao: ScooterDao) {
 
-    private val database : ScooterDatabase = Room
-        .databaseBuilder(
-            context.applicationContext,
-            ScooterDatabase::class.java,
-            DATABASE_NAME
-        )
-        .build()
+    val scooters: Flow<List<Scooter>> = scooterDao.getScooters()
 
-    suspend fun getScooters() : List<Scooter> = database.scooterDao().getScooters()
-    suspend fun getScooter(id: UUID) : Scooter = database.scooterDao().getScooter(id)
-
-    companion object {
-        private var INSTANCE : ScooterRepository? = null
-
-        fun initialize(context: Context) {
-            if (INSTANCE == null) {
-                INSTANCE = ScooterRepository(context)
-            }
-        }
-
-        fun get() : ScooterRepository {
-            return INSTANCE ?:
-            throw IllegalStateException("ScooterRepostory must be initialized")
-        }
+    @WorkerThread
+    suspend fun insert(scooter: Scooter) {
+        scooterDao.insert(scooter)
     }
+
+    @WorkerThread
+    suspend fun update(scooter: Scooter) {
+        scooterDao.update(scooter)
+    }
+
+    @WorkerThread
+    suspend fun delete(scooter: Scooter) {
+        scooterDao.delete(scooter)
+    }
+
 }

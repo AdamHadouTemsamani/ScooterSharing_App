@@ -6,10 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
 import dk.itu.moapd.scootersharing.ahad.model.RidesDB
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentUpdateRideBinding
+import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModel
+import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModelFactory
 
 class UpdateRideFragment : Fragment() {
 
@@ -18,6 +22,10 @@ class UpdateRideFragment : Fragment() {
         get() = checkNotNull(_binding) {
             "Cannot access binding because it is null. Is the view visible?"
         }
+
+    private val scooterViewModel: ScooterViewModel by viewModels {
+        ScooterViewModelFactory((requireActivity().application as ScooterApplication).repository)
+    }
 
     companion object {
         lateinit var ridesDB : RidesDB
@@ -101,10 +109,12 @@ class UpdateRideFragment : Fragment() {
         with (binding) {
             if ( editTextLocation.editText?.text.toString().isNotEmpty()) {
                 //Update the object attributes
-                val name = editTextName.editText?.text.toString().trim()
-                val location = editTextLocation.editText?.text.toString().trim()
-                ridesDB.updateCurrentScooter(location, System.currentTimeMillis())
-
+                val scooter = scooterViewModel.scooters.value?.last()
+                scooter?.location = editTextLocation.editText?.text.toString().trim()
+                scooter?.timestamp = System.currentTimeMillis().toString()
+                if (scooter != null) {
+                    scooterViewModel.update(scooter)
+                }
                 //Reset the text fields and update the UI
                 editTextName.editText?.text?.clear()
                 editTextLocation.editText?.text?.clear()

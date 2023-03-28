@@ -6,10 +6,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
 import dk.itu.moapd.scootersharing.ahad.model.RidesDB
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentStartRideBinding
+import dk.itu.moapd.scootersharing.ahad.model.Scooter
+import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModel
+import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModelFactory
 import java.util.*
 
 class StartRideFragment : Fragment() {
@@ -19,6 +24,10 @@ class StartRideFragment : Fragment() {
         get() = checkNotNull(_binding) {
             "Cannot access binding because it is null. Is the view visible?"
         }
+
+    private val scooterViewModel: ScooterViewModel by viewModels {
+        ScooterViewModelFactory((requireActivity().application as ScooterApplication).repository)
+    }
 
     companion object {
         lateinit var ridesDB : RidesDB
@@ -111,10 +120,9 @@ class StartRideFragment : Fragment() {
                 //Update the object attributes
                 val name = editTextName.editText?.text.toString().trim()
                 val location = editTextLocation.editText?.text.toString().trim()
-
                 val date = Calendar.getInstance().time
-                ridesDB.addScooter(name, location, date.toString())
-
+                val scooter = Scooter(0,name,location,date.toString())
+                scooterViewModel.insert(scooter)
                 //Reset the text fields and update the UI
                 editTextName.editText?.text?.clear()
                 editTextLocation.editText?.text?.clear()
