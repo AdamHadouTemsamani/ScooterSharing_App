@@ -9,12 +9,13 @@ import java.util.*
  * A data class that encapsulates the information about a scooter
  */
 @Entity(tableName = "scooter")
-data class Scooter (
+data class Scooter(
     @PrimaryKey(autoGenerate = true) val id: Int,
     @ColumnInfo(name = "name") val name: String?,
     @ColumnInfo(name = "location") var location: String?,
-    @ColumnInfo(name = "startTime") var startTime: String?,
-    @ColumnInfo(name = "endTime") var endTime: String?){
+    @ColumnInfo(name = "startTime") var startTime: Long,
+    @ColumnInfo(name = "endTime") var endTime: Long
+){
 
     /**
      * Returns a formatted string with the information of the Scooter object

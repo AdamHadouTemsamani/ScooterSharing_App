@@ -53,6 +53,7 @@
         app:icon="@drawable/baseline_create_24"
         app:iconGravity="textStart"/>
 
+
     <Button
         android:id="@+id/login_button"
         style="@style/Widget.Material3.Button"
@@ -64,6 +65,18 @@
         android:textSize="14sp"
         app:icon="@drawable/baseline_login_24"
         app:iconGravity="textStart" />
+
+    <Button
+        android:id="@+id/history_ride_button"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="5dp"
+        android:text="@string/history_ride_button"
+        android:textSize="14sp"
+        app:icon="@drawable/baseline_history_24"
+        app:iconGravity="textStart"/>
 
     <Button
         android:id="@+id/show_rides_button"

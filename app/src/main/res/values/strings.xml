@@ -7,12 +7,15 @@
     <string name="edit_text_location">Location:</string>
     <string name="hint_text_location">Enter location</string>
     <string name="update_ride_button">Update Ride</string>
+    <string name="history_ride_button">Ride History</string>
     <string name="show_rides_button">Show Rides</string>
     <string name="name">Name</string>
     <string name="location">Location</string>
     <string name="timestamp">Timestamp</string>
     <string name="open_snackbar">Open Snackbar</string>
     <string name="login_button">Sign In</string>
-
+    <string name="time">Time</string>
+    <string name="price">Price</string>
+    <string name="history">History</string>
 
 </resources>

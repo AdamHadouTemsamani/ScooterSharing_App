@@ -8,10 +8,17 @@
     tools:context=".fragments.HistoryRideFragment">
 
     <!-- List items using MaterialDesign Cards -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list_rides"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="721dp"
-        android:visibility="invisible" />
+        android:layout_height="wrap_content"
+        android:text="@string/history"
+        android:textAlignment="center"
+        android:textSize="24sp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list_previous_rides"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible" />
 
 </LinearLayout>

@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -15,19 +14,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
-import dk.itu.moapd.scootersharing.ahad.model.RidesDB
-import dk.itu.moapd.scootersharing.ahad.model.Scooter
+import dk.itu.moapd.scootersharing.ahad.activities.HistoryRideActivity
 import dk.itu.moapd.scootersharing.ahad.utils.SwipeToDeleteCallback
 import dk.itu.moapd.scootersharing.ahad.activities.LoginActivity
 import dk.itu.moapd.scootersharing.ahad.activities.StartRideActivity
 import dk.itu.moapd.scootersharing.ahad.activities.UpdateRideActivity
 import dk.itu.moapd.scootersharing.ahad.adapters.CustomAdapter
+import dk.itu.moapd.scootersharing.ahad.adapters.HistoryRideAdapter
 import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentMainBinding
-import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModel
-import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModelFactory
-import dk.itu.moapd.scootersharing.ahad.utils.ItemClickListener
-
+import dk.itu.moapd.scootersharing.ahad.model.*
+import java.lang.Math.abs
+import java.util.*
 
 /**
  * A fragment to show the `Main Fragment` tab
@@ -36,6 +34,7 @@ class MainFragment : Fragment() {
 
     companion object {
         private lateinit var adapter: CustomAdapter
+        private lateinit var previousRidesAdapter: HistoryRideAdapter
     }
 
     /**
@@ -54,7 +53,11 @@ class MainFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
 
     private val scooterViewModel: ScooterViewModel by viewModels {
-        ScooterViewModelFactory((requireActivity().application as ScooterApplication).repository)
+        ScooterViewModelFactory((requireActivity().application as ScooterApplication).scooterRepository)
+    }
+
+    private val historyViewModel: HistoryViewModel by viewModels {
+        HistoryViewModel.HistoryViewModelFactory((requireActivity().application as ScooterApplication).historyRepository)
     }
 
     /**
@@ -96,11 +99,20 @@ class MainFragment : Fragment() {
         binding.listRides.layoutManager = LinearLayoutManager(activity)
         // Collecting data from the dataset.
         adapter = CustomAdapter()
+        previousRidesAdapter = HistoryRideAdapter()
+
         scooterViewModel.scooters.observe(viewLifecycleOwner) { scooters ->
             scooters?.let {
                 adapter.submitList(it)
             }
         }
+
+        historyViewModel.previousRides.observe(viewLifecycleOwner) { previousRides ->
+            previousRides?.let {
+                previousRidesAdapter.submitList(it)
+            }
+        }
+
         return binding.root
     }
 
@@ -141,6 +153,12 @@ class MainFragment : Fragment() {
 
             }
 
+            historyRideButton.setOnClickListener {
+                val intent = Intent(activity, HistoryRideActivity::class.java)
+                startActivity(intent)
+                activity?.finish()
+            }
+
             loginButton.setOnClickListener {
                 if (auth.currentUser == null) {
                     val intent = Intent(activity, LoginActivity::class.java)
@@ -163,17 +181,24 @@ class MainFragment : Fragment() {
                     val position = viewHolder.adapterPosition
 
                     MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("Are you sure you want to delete this ride?")
+                        .setTitle("Are you sure you want to end this ride?")
                         .setMessage("Once you accept you can't undo it.")
 
                         .setNegativeButton("Decline") { dialog, which ->
                             adapter.notifyItemChanged(position)
-                            Log.d("TAG", "Ride has not been deleted")
+                            Log.d("TAG", "Ride has not been finished")
                         }
                         .setPositiveButton("Accept") { dialog, which ->
                             val scooter = adapter.currentList[position]
+                            scooter.endTime = Calendar.getInstance().time.minutes.toLong()
+                            val diffTime = abs(scooter.startTime - scooter.endTime)
+                            val previousRide = History(
+                                0,scooter.name, scooter.location,diffTime, (diffTime * 2).toInt()) //This needs to be auto incremented
+
                             scooterViewModel.delete(scooter)
-                            Log.d("TAG", "Ride has been succesfully deleted")
+                            historyViewModel.insert(previousRide)
+                            previousRidesAdapter.notifyItemChanged(position)
+                            Log.d("TAG", "Ride has been finished succesfully")
                         }
                         .show()
                 }

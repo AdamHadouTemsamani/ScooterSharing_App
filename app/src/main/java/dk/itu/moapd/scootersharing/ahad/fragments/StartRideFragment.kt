@@ -10,7 +10,6 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
-import dk.itu.moapd.scootersharing.ahad.model.RidesDB
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentStartRideBinding
 import dk.itu.moapd.scootersharing.ahad.model.Scooter
 import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModel
@@ -26,12 +25,9 @@ class StartRideFragment : Fragment() {
         }
 
     private val scooterViewModel: ScooterViewModel by viewModels {
-        ScooterViewModelFactory((requireActivity().application as ScooterApplication).repository)
+        ScooterViewModelFactory((requireActivity().application as ScooterApplication).scooterRepository)
     }
 
-    companion object {
-        lateinit var ridesDB : RidesDB
-    }
 
     /**
      * Called when the activity is starting. This is where most initialization should go: calling
@@ -55,7 +51,6 @@ class StartRideFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Singleton to share an object between the app activities.
-        ridesDB = RidesDB.get(requireContext())
     }
 
     override fun onCreateView(
@@ -120,8 +115,8 @@ class StartRideFragment : Fragment() {
                 //Update the object attributes
                 val name = editTextName.editText?.text.toString().trim()
                 val location = editTextLocation.editText?.text.toString().trim()
-                val date = Calendar.getInstance().time
-                val scooter = Scooter(0,name,location,date.toString())
+                val date = Calendar.getInstance().time.minutes.toLong()
+                val scooter = Scooter(0,name,location,date,date)
                 scooterViewModel.insert(scooter)
                 //Reset the text fields and update the UI
                 editTextName.editText?.text?.clear()

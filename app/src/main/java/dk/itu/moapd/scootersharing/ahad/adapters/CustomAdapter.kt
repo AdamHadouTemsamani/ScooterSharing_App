@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import dk.itu.moapd.scootersharing.ahad.model.Scooter
 import dk.itu.moapd.scootersharing.ahad.databinding.ListRidesBinding
-import dk.itu.moapd.scootersharing.ahad.utils.ItemClickListener
+import java.time.Period
 
 class CustomAdapter() :
     ListAdapter<Scooter, CustomAdapter.ViewHolder>(ScooterComparator()) {
@@ -23,7 +23,7 @@ class CustomAdapter() :
         fun bind(scooter: Scooter) {
             binding.name.text = scooter.name
             binding.location.text = scooter.location
-            binding.timestamp.text = scooter.timestamp.toString()
+            binding.timestamp.text = scooter.startTime.toString()
         }
     }
 

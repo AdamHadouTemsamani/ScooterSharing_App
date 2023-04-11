@@ -4,13 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import dk.itu.moapd.scootersharing.ahad.model.Scooter
-import dk.itu.moapd.scootersharing.ahad.model.ScooterDao
-import dk.itu.moapd.scootersharing.ahad.model.ScooterRepository
+import androidx.room.TypeConverters
+import dk.itu.moapd.scootersharing.ahad.model.*
+import dk.itu.moapd.scootersharing.ahad.utils.Converters
 
-@Database(entities = [Scooter::class], version = 1)
+@Database(entities = [Scooter::class, History::class], version = 1)
 abstract class ScooterDatabase : RoomDatabase() {
     abstract fun scooterDao() : ScooterDao
+    abstract fun historyDao() : HistoryDao
 
     companion object {
         @Volatile

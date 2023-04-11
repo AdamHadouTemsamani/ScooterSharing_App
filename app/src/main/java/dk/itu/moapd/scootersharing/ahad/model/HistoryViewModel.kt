@@ -1,9 +1,6 @@
 package dk.itu.moapd.scootersharing.ahad.model
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import kotlinx.coroutines.launch
 
 class HistoryViewModel(private val repository: HistoryRepository) : ViewModel() {
@@ -17,5 +14,14 @@ class HistoryViewModel(private val repository: HistoryRepository) : ViewModel() 
 
     fun delete(previousRide: History) = viewModelScope.launch {
         repository.delete(previousRide)
+    }
+
+    class HistoryViewModelFactory(private val repository: HistoryRepository) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(HistoryViewModel::class.java))
+                @Suppress("UNCHECKED_CAST")
+                return HistoryViewModel(repository) as T
+            throw IllegalArgumentException("Unknown ViewModel class")
+        }
     }
 }
