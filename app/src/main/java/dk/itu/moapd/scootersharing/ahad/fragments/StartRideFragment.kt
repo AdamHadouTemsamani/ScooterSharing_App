@@ -117,6 +117,10 @@ class StartRideFragment : Fragment() {
                 val location = editTextLocation.editText?.text.toString().trim()
                 val date = Calendar.getInstance().time.minutes.toLong()
                 val scooter = Scooter(0,name,location,date,date)
+                if (name.equals("CPH02") || name.equals("CPH03"))
+                    scooter.URL = name + ".jpg"
+                else
+                    scooter.URL = "CPH01.jpg"
                 scooterViewModel.insert(scooter)
                 //Reset the text fields and update the UI
                 editTextName.editText?.text?.clear()

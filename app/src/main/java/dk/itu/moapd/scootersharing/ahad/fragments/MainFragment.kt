@@ -14,6 +14,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
 import dk.itu.moapd.scootersharing.ahad.activities.HistoryRideActivity
 import dk.itu.moapd.scootersharing.ahad.utils.SwipeToDeleteCallback
 import dk.itu.moapd.scootersharing.ahad.activities.LoginActivity
@@ -51,6 +55,7 @@ class MainFragment : Fragment() {
         }
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var storage: FirebaseStorage
 
     private val scooterViewModel: ScooterViewModel by viewModels {
         ScooterViewModelFactory((requireActivity().application as ScooterApplication).scooterRepository)
@@ -86,6 +91,8 @@ class MainFragment : Fragment() {
         super.onCreate(savedInstanceState)
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
+        storage = Firebase.storage("gs://moapd-2023-cc929.appspot.com")
+
     }
 
 

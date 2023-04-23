@@ -14,7 +14,8 @@ data class Scooter(
     @ColumnInfo(name = "name") val name: String?,
     @ColumnInfo(name = "location") var location: String?,
     @ColumnInfo(name = "startTime") var startTime: Long,
-    @ColumnInfo(name = "endTime") var endTime: Long
+    @ColumnInfo(name = "endTime") var endTime: Long,
+    @ColumnInfo(name = "URL") var URL: String = "CPH01"
 ){
 
     /**

@@ -17,5 +17,6 @@
     <string name="time">Time</string>
     <string name="price">Price</string>
     <string name="history">History</string>
+    <string name="content_description_media">This is an image of a scooter</string>
 
 </resources>

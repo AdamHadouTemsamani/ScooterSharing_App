@@ -1,15 +1,17 @@
 package dk.itu.moapd.scootersharing.ahad.adapters
 
-import android.content.ContentValues.TAG
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import dk.itu.moapd.scootersharing.ahad.model.Scooter
 import dk.itu.moapd.scootersharing.ahad.databinding.ListRidesBinding
-import java.time.Period
 
 class CustomAdapter() :
     ListAdapter<Scooter, CustomAdapter.ViewHolder>(ScooterComparator()) {
@@ -21,6 +23,22 @@ class CustomAdapter() :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(scooter: Scooter) {
+            // Get the public thumbnail URL.
+            val storage = Firebase.storage("gs://moapd-2023-cc929.appspot.com")
+            val imageRef = storage.reference.child(scooter.URL)
+
+            // Clean the image UI component.
+            binding.image.setImageResource(0)
+
+            // Download and set an image into the ImageView.
+            imageRef.downloadUrl.addOnSuccessListener {
+                Glide.with(itemView.context)
+                    .load(it)
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .centerCrop()
+                    .into(binding.image)
+            }
+
             binding.name.text = scooter.name
             binding.location.text = scooter.location
             binding.timestamp.text = scooter.startTime.toString()
