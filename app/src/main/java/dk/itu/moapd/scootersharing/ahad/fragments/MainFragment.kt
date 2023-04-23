@@ -16,11 +16,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
-import dk.itu.moapd.scootersharing.ahad.Manifest
 import dk.itu.moapd.scootersharing.ahad.activities.HistoryRideActivity
 import dk.itu.moapd.scootersharing.ahad.utils.SwipeToDeleteCallback
 import dk.itu.moapd.scootersharing.ahad.activities.LoginActivity
@@ -220,12 +218,12 @@ class MainFragment : Fragment() {
 
     private fun requestUserPermissions() {
         //An array with permissions.
-        val permisssions: ArrayList<String> = ArrayList()
-        permisssions.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
-        permisssions.add(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+        val permissions: ArrayList<String> = ArrayList()
+        permissions.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
+        permissions.add(android.Manifest.permission.ACCESS_COARSE_LOCATION)
 
         //Check which permissions is needed to ask to the user.
-        val permissionsToRequest = permissionsToRequest(permisssions)
+        val permissionsToRequest = permissionsToRequest(permissions)
 
         //Show the permissions dialogue to the user.
         if (permissionsToRequest.size > 0)
