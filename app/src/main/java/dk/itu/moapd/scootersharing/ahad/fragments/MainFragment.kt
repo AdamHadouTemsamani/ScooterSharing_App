@@ -1,11 +1,13 @@
 package dk.itu.moapd.scootersharing.ahad.fragments
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -18,6 +20,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
+import dk.itu.moapd.scootersharing.ahad.Manifest
 import dk.itu.moapd.scootersharing.ahad.activities.HistoryRideActivity
 import dk.itu.moapd.scootersharing.ahad.utils.SwipeToDeleteCallback
 import dk.itu.moapd.scootersharing.ahad.activities.LoginActivity
@@ -39,6 +42,7 @@ class MainFragment : Fragment() {
     companion object {
         private lateinit var adapter: CustomAdapter
         private lateinit var previousRidesAdapter: HistoryRideAdapter
+        private const val ALL_PERMISSIONS_RESULT = 1011
     }
 
     /**
@@ -125,8 +129,7 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
+        requestUserPermissions()
         if (auth.currentUser != null)
             binding.loginButton.text = "Sign Out"
         if (auth.currentUser == null)
@@ -213,6 +216,32 @@ class MainFragment : Fragment() {
             val itemTouchHelper = ItemTouchHelper(swipeHandler)
             itemTouchHelper.attachToRecyclerView(binding.listRides)
             }
+    }
+
+    private fun requestUserPermissions() {
+        //An array with permissions.
+        val permisssions: ArrayList<String> = ArrayList()
+        permisssions.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
+        permisssions.add(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+
+        //Check which permissions is needed to ask to the user.
+        val permissionsToRequest = permissionsToRequest(permisssions)
+
+        //Show the permissions dialogue to the user.
+        if (permissionsToRequest.size > 0)
+            requestPermissions(
+                permissionsToRequest.toTypedArray(),
+                ALL_PERMISSIONS_RESULT
+            )
+    }
+
+    private fun permissionsToRequest(permissions: ArrayList<String>): ArrayList<String> {
+        val result: ArrayList<String> = ArrayList()
+        for (permission in permissions)
+            if (context?.let { checkSelfPermission(it,permission) } != PackageManager.PERMISSION_GRANTED)
+                result.add(permission)
+
+        return result
     }
 
     override fun onDestroyView() {
