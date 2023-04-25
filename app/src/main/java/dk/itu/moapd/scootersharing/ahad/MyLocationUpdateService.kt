@@ -1,6 +1,5 @@
 package dk.itu.moapd.scootersharing.ahad
 
-import android.app.ActivityManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -22,6 +21,8 @@ class MyLocationUpdateService : Service() {
         private const val PACKAGE_NAME = "dk.itu.moapd.scootersharing.ahad"
         val EXTRA_LOCATION = "$PACKAGE_NAME.location"
         val ACTION_BROADCAST = "$PACKAGE_NAME.broadcast"
+        private const val EXTRA_STARTED_FROM_NOTIFICATION = PACKAGE_NAME +
+                ".started_from_notification"
         private val TAG = MyLocationUpdateService::class.java.simpleName
         private const val KEY_REQUESTING_LOCATION_UPDATES = "requesting_locaction_updates"
 
@@ -29,7 +30,7 @@ class MyLocationUpdateService : Service() {
 
     private val mBinder: IBinder = LocalBinder()
 
-    private val UPDATE_INTERVAL_IN_MILLISECONDS: Long = 10000
+    private val UPDATE_INTERVAL_IN_MILLISECONDS: Long = 3000
     private val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2
 
     private var mChangingConfiguration = false
@@ -50,6 +51,7 @@ class MyLocationUpdateService : Service() {
         }
         createLocationRequest()
         getLastLocation()
+
         val handlerThread = HandlerThread(TAG)
         handlerThread.start()
         mServiceHandler = Handler(handlerThread.looper)
@@ -57,6 +59,15 @@ class MyLocationUpdateService : Service() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         Log.i(TAG, "Service started")
+        val startedFromNotification = intent.getBooleanExtra(
+            EXTRA_STARTED_FROM_NOTIFICATION,
+            false
+        )
+
+        if (startedFromNotification) {
+            removeLocationUpdates()
+            stopSelf()
+        }
         // Tells the system to not try to recreate the service after it has been killed.
         return START_NOT_STICKY
     }
@@ -68,17 +79,22 @@ class MyLocationUpdateService : Service() {
 
 
     override fun onBind(intent: Intent?): IBinder? {
-        // Called when a client (MainActivity in case of this sample) comes to the foreground
-        // and binds with this service. The service should cease to be a foreground service
-        // when that happens.
         Log.i(TAG, "in onBind()")
         stopForeground(true)
         mChangingConfiguration = false
         return mBinder
     }
 
+
+    override fun onRebind(intent: Intent?) {
+        Log.i(TAG, "in onRebind()");
+        stopForeground(true);
+        mChangingConfiguration = false;
+        super.onRebind(intent);
+    }
+
     override fun onDestroy() {
-        mServiceHandler!!.removeCallbacksAndMessages(null)
+        mServiceHandler?.removeCallbacksAndMessages(null)
     }
 
     fun requestLocationUpdates() {
@@ -140,9 +156,9 @@ class MyLocationUpdateService : Service() {
         mLocationRequest!!.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
     }
 
-    class LocalBinder : Binder() {
+    inner class LocalBinder : Binder() {
         fun getService(): MyLocationUpdateService {
-            return MyLocationUpdateService();
+            return this@MyLocationUpdateService;
         }
     }
 

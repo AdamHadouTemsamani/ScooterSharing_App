@@ -2,7 +2,10 @@ package dk.itu.moapd.scootersharing.ahad.fragments
 
 import android.content.*
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.Looper
@@ -32,8 +35,6 @@ class LocationFragment : Fragment() {
         private const val ALL_PERMISSIONS_RESULT = 1011
     }
 
-    // The BroadcastReceiver used to listen from broadcasts from the service.
-    private val myReceiver: MyReceiver? = null
 
     // A reference to the service used to get location updates.
     private var mService: MyLocationUpdateService? = null
@@ -58,8 +59,13 @@ class LocationFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.i(TAG,"I have made le receiver merci beacoup")
         broadcastReceiver = MyReceiver()
-        if(!checkPermission()) requestUserPermissions()
+        if(checkPermission()) requestUserPermissions()
+
+        context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
+            broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+        ) }
     }
 
     override fun onCreateView(
@@ -73,15 +79,20 @@ class LocationFragment : Fragment() {
     }
 
     override fun onStart() {
+        Log.i(TAG,"I am starting xD")
         super.onStart()
 
-        if(!checkPermission()) requestUserPermissions()
+        if(checkPermission()) requestUserPermissions()
         mService?.requestLocationUpdates();
 
         context?.bindService(
             Intent(context, MyLocationUpdateService::class.java), mServiceConnection,
             Context.BIND_AUTO_CREATE
         )
+
+        context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
+            broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+        ) }
 
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -90,13 +101,19 @@ class LocationFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        Log.i(TAG,"I am resummeignng")
         context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
             broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+
         ) }
+
+        Log.i(TAG,"I am resummeignng 2")
+        context?.startService(Intent(context,MyLocationUpdateService::class.java))
         //subscribeToLocationUpdates()
     }
 
     override fun onPause() {
+        Log.i(TAG,"I am peeeeeingg")
         super.onPause()
         context?.let { LocalBroadcastManager.getInstance(it).unregisterReceiver(broadcastReceiver) }
         //unsubscribeToLocationUpdates()
@@ -109,6 +126,7 @@ class LocationFragment : Fragment() {
             context?.unbindService(mServiceConnection)
             mBound = false
         }
+        context?.stopService(Intent(context,MyLocationUpdateService::class.java))
 
         _binding = null
     }
@@ -223,14 +241,14 @@ class LocationFragment : Fragment() {
         override fun onReceive(context: Context?, intent: Intent) {
             val location: Location? =
                 intent.extras?.getParcelable(MyLocationUpdateService.EXTRA_LOCATION)
-                Log.i(TAG,"There is no location")
             if (location != null) {
                 Log.i(TAG,location.latitude.toString())
                 Log.i(TAG,location.longitude.toString())
-                binding.latitudeTextView.setText(location.latitude.toString())
-                binding.longitudeTextView.setText(location.longitude.toString())
-
+                binding.latitudeTextField.editText?.setText(location.latitude.toString())
+                binding.longtitudeTextField.editText?.setText(location.longitude.toString())
+                setAddress(location.latitude,location.longitude)
             }
+            if(location == null) Log.i(TAG,"There is no location dumbass")
         }
 
     }
@@ -267,4 +285,36 @@ class LocationFragment : Fragment() {
         val format = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
         return format.format(date)
     }
+
+    private fun Address.toAddressString() : String {
+        val address = this
+        val stringBuilder = StringBuilder()
+        stringBuilder.apply {
+            append(address.getAddressLine(0))
+            append(address.locality)
+            append(address.postalCode)
+            append(address.countryName)
+        }
+        return stringBuilder.toString()
+    }
+
+    private fun setAddress(latitude: Double, longitude: Double) {
+        val geocoder = context?.let { Geocoder(it, Locale.getDefault()) }
+        val geocodeListener = Geocoder.GeocodeListener { addresses ->
+            addresses.firstOrNull()?.toAddressString()?.let {address ->
+                binding.addressTextField.editText?.setText(address)
+
+            }
+
+        }
+        if (Build.VERSION.SDK_INT >= 33)
+            geocoder?.getFromLocation(latitude, longitude, 1, geocodeListener)
+        else
+            geocoder?.getFromLocation(latitude, longitude, 1)?.let { addresses ->
+                addresses.firstOrNull()?.toAddressString()?.let { address ->
+                    binding.addressTextField.editText?.setText(address)
+                }
+            }
+    }
+
 }

@@ -22,5 +22,6 @@
     <string name="latitude_text">Latitude</string>
     <string name="longitude_text">Longitude</string>
     <string name="find_scooter_button">Find Scooter</string>
+    <string name="address_text">Current Address</string>
 
 </resources>
