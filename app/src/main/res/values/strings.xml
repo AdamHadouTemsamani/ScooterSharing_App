@@ -18,5 +18,9 @@
     <string name="price">Price</string>
     <string name="history">History</string>
     <string name="content_description_media">This is an image of a scooter</string>
+    <string name="latitude">Latitude</string>
+    <string name="latitude_text">Latitude</string>
+    <string name="longitude_text">Longitude</string>
+    <string name="find_scooter_button">Find Scooter</string>
 
 </resources>

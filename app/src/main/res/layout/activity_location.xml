@@ -4,14 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".activities.MainActivity">
+    tools:context=".activities.LocationActivity">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="?android:attr/actionBarSize"
-        android:name="dk.itu.moapd.scootersharing.ahad.fragments.MainFragment"
-        tools:layout="@layout/fragment_main" />
+        android:name="dk.itu.moapd.scootersharing.ahad.fragments.LocationFragment"
+        tools:layout="@layout/fragment_location" />
 
 </LinearLayout>

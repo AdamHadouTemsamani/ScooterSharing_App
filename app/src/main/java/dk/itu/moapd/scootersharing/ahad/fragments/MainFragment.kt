@@ -19,11 +19,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
-import dk.itu.moapd.scootersharing.ahad.activities.HistoryRideActivity
+import dk.itu.moapd.scootersharing.ahad.activities.*
 import dk.itu.moapd.scootersharing.ahad.utils.SwipeToDeleteCallback
-import dk.itu.moapd.scootersharing.ahad.activities.LoginActivity
-import dk.itu.moapd.scootersharing.ahad.activities.StartRideActivity
-import dk.itu.moapd.scootersharing.ahad.activities.UpdateRideActivity
 import dk.itu.moapd.scootersharing.ahad.adapters.CustomAdapter
 import dk.itu.moapd.scootersharing.ahad.adapters.HistoryRideAdapter
 import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
@@ -127,7 +124,6 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requestUserPermissions()
         if (auth.currentUser != null)
             binding.loginButton.text = "Sign Out"
         if (auth.currentUser == null)
@@ -142,6 +138,12 @@ class MainFragment : Fragment() {
 
             updateRideButton.setOnClickListener {
                 val intent = Intent(activity, UpdateRideActivity::class.java)
+                startActivity(intent)
+                activity?.finish()
+            }
+
+            findScooterButton.setOnClickListener {
+                val intent = Intent(activity, LocationActivity::class.java)
                 startActivity(intent)
                 activity?.finish()
             }
@@ -216,31 +218,7 @@ class MainFragment : Fragment() {
             }
     }
 
-    private fun requestUserPermissions() {
-        //An array with permissions.
-        val permissions: ArrayList<String> = ArrayList()
-        permissions.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
-        permissions.add(android.Manifest.permission.ACCESS_COARSE_LOCATION)
 
-        //Check which permissions is needed to ask to the user.
-        val permissionsToRequest = permissionsToRequest(permissions)
-
-        //Show the permissions dialogue to the user.
-        if (permissionsToRequest.size > 0)
-            requestPermissions(
-                permissionsToRequest.toTypedArray(),
-                ALL_PERMISSIONS_RESULT
-            )
-    }
-
-    private fun permissionsToRequest(permissions: ArrayList<String>): ArrayList<String> {
-        val result: ArrayList<String> = ArrayList()
-        for (permission in permissions)
-            if (context?.let { checkSelfPermission(it,permission) } != PackageManager.PERMISSION_GRANTED)
-                result.add(permission)
-
-        return result
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
