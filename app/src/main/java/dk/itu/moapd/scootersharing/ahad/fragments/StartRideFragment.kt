@@ -1,33 +1,64 @@
 package dk.itu.moapd.scootersharing.ahad.fragments
 
+import android.Manifest
+import android.content.*
+import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
+import android.location.Location
+import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
+import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import dk.itu.moapd.scootersharing.ahad.MyLocationUpdateService
 import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentStartRideBinding
 import dk.itu.moapd.scootersharing.ahad.model.Scooter
 import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModel
 import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModelFactory
+import dk.itu.moapd.scootersharing.ahad.utils.UserPermissions
 import java.util.*
 
 class StartRideFragment : Fragment() {
 
+
+    companion object {
+        private val TAG = StartRideFragment::class.java.simpleName
+        private const val ALL_PERMISSIONS_RESULT = 1011
+    }
+
+    //Binding
     private var _binding: FragmentStartRideBinding? = null
     private val binding
         get() = checkNotNull(_binding) {
             "Cannot access binding because it is null. Is the view visible?"
         }
+    private lateinit var currentScooter: Scooter
+
+    //Used for location-aware service
+    private var currentLocation: Location? = null
+    // A reference to the service used to get location updates
+    private var mService: MyLocationUpdateService? = null
+    // Tracks the bound state of the service.
+    private var mBound = false
+    // BroadcastReceiver that gets data from service
+    private lateinit var broadcastReceiver: MyReceiver
+    // Class that requests for Location-Aware permissions
 
     private val scooterViewModel: ScooterViewModel by viewModels {
         ScooterViewModelFactory((requireActivity().application as ScooterApplication).scooterRepository)
     }
-
 
     /**
      * Called when the activity is starting. This is where most initialization should go: calling
@@ -50,7 +81,13 @@ class StartRideFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Singleton to share an object between the app activities.
+        //Initialize broadcastReceiver
+        broadcastReceiver = MyReceiver()
+        if(checkPermission()) requestUserPermissions()
+
+        context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
+            broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+        ) }
     }
 
     override fun onCreateView(
@@ -65,7 +102,7 @@ class StartRideFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        with (binding) {
+        with(binding) {
             startRideButton.setOnClickListener { view ->
                 view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
 
@@ -79,19 +116,50 @@ class StartRideFragment : Fragment() {
                     }
                     .show()
             }
+
         }
+        context?.startService(Intent(context, MyLocationUpdateService::class.java))
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if(checkPermission()) requestUserPermissions()
+        mService?.requestLocationUpdates();
+
+        context?.bindService(
+            Intent(context, MyLocationUpdateService::class.java), mServiceConnection,
+            Context.BIND_AUTO_CREATE
+        )
+
+        context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
+            broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+        ) }
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
+            broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+
+        ) }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        if (mBound) {
+            context?.unbindService(mServiceConnection)
+            mBound = false
+        }
+        context?.stopService(Intent(context,MyLocationUpdateService::class.java))
     }
     /**
      * Displays the Scooter information using a Snackbar
      */
-    private fun showMessage() {
+    private fun showMessage(message: String) {
         //Snackbar :D
-        Snackbar.make(binding.root, "Scooterride started", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
     /* *
@@ -112,11 +180,17 @@ class StartRideFragment : Fragment() {
     private fun addScooter() {
         with (binding) {
             if ( editTextName.editText?.text.toString().isNotEmpty() && editTextLocation.editText?.text.toString().isNotEmpty()) {
+                if(currentLocation == null) {
+                    showMessage("Your location is currently null. Please pause and open the application")
+                    return
+                }
                 //Update the object attributes
                 val name = editTextName.editText?.text.toString().trim()
                 val location = editTextLocation.editText?.text.toString().trim()
                 val date = Calendar.getInstance().time.minutes.toLong()
-                val scooter = Scooter(0,name,location,date,date)
+                val startLocation = currentLocation
+                val endLocation = null
+                val scooter = Scooter(0,name,location,date,date,Pair(startLocation.latitude,startLocation.longitude), ,true)
                 if (name.equals("CPH02") || name.equals("CPH03"))
                     scooter.URL = name + ".jpg"
                 else
@@ -125,10 +199,114 @@ class StartRideFragment : Fragment() {
                 //Reset the text fields and update the UI
                 editTextName.editText?.text?.clear()
                 editTextLocation.editText?.text?.clear()
-                showMessage()
+                showMessage("Ride started!")
             }
         }
     }
+
+
+
+    private fun requestUserPermissions() {
+        //An array with permissions.
+        val permissions: ArrayList<String> = ArrayList()
+        permissions.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
+        permissions.add(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+
+        //Check which permissions is needed to ask to the user.
+        val permissionsToRequest = permissionsToRequest(permissions)
+
+        //Show the permissions dialogue to the user.
+        if (permissionsToRequest.size > 0)
+            requestPermissions(
+                permissionsToRequest.toTypedArray(),
+                ALL_PERMISSIONS_RESULT
+            )
+    }
+
+    private fun checkPermission() =
+        context?.let {
+            ContextCompat.checkSelfPermission(
+                it, Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        } != PackageManager.PERMISSION_GRANTED &&
+                context?.let {
+                    ContextCompat.checkSelfPermission(
+                        it, Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                } != PackageManager.PERMISSION_GRANTED
+
+    private fun permissionsToRequest(permissions: ArrayList<String>): ArrayList<String> {
+        val result: ArrayList<String> = ArrayList()
+        for (permission in permissions)
+            if (context?.let { PermissionChecker.checkSelfPermission(it, permission) } != PackageManager.PERMISSION_GRANTED)
+                result.add(permission)
+
+        return result
+    }
+
+    private inner class MyReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            val location: Location? =
+                intent.extras?.getParcelable(MyLocationUpdateService.EXTRA_LOCATION)
+            if (location != null) {
+                Log.i(TAG,location.latitude.toString())
+                Log.i(TAG,location.longitude.toString())
+                currentLocation = location
+            }
+            if(location == null) Log.i(TAG,"There is no location dumbass")
+        }
+
+    }
+
+    // Monitors the state of the connection to the service.
+    private val mServiceConnection: ServiceConnection = object : ServiceConnection {
+
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            val binder: MyLocationUpdateService.LocalBinder = service as MyLocationUpdateService.LocalBinder
+            mService = binder.getService()
+            mBound = true
+            Log.i(TAG,"Yes work, service yes yes")
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            mService = null
+            mBound = false
+            Log.i(TAG,"no work, service no no")
+        }
+    }
+
+    private fun Address.toAddressString() : String {
+        val address = this
+        val stringBuilder = StringBuilder()
+        stringBuilder.apply {
+            append(address.getAddressLine(0))
+            append(address.locality)
+            append(address.postalCode)
+            append(address.countryName)
+        }
+        return stringBuilder.toString()
+    }
+
+    private fun setAddress(latitude: Double, longitude: Double) {
+        val geocoder = context?.let { Geocoder(it, Locale.getDefault()) }
+        val geocodeListener = Geocoder.GeocodeListener { addresses ->
+            addresses.firstOrNull()?.toAddressString()?.let {address ->
+
+
+            }
+
+        }
+        if (Build.VERSION.SDK_INT >= 33)
+            geocoder?.getFromLocation(latitude, longitude, 1, geocodeListener)
+        else
+            geocoder?.getFromLocation(latitude, longitude, 1)?.let { addresses ->
+                addresses.firstOrNull()?.toAddressString()?.let { address ->
+                    currentScooter.startLocation =
+                }
+            }
+    }
+
+
 
 
 

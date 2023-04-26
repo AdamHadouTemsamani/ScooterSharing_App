@@ -23,5 +23,6 @@
     <string name="longitude_text">Longitude</string>
     <string name="find_scooter_button">Find Scooter</string>
     <string name="address_text">Current Address</string>
+    <string name="currentLocation">Current Location</string>
 
 </resources>

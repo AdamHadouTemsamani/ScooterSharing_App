@@ -1,5 +1,6 @@
 package dk.itu.moapd.scootersharing.ahad.model
 
+import android.location.Location
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -15,6 +16,9 @@ data class Scooter(
     @ColumnInfo(name = "location") var location: String?,
     @ColumnInfo(name = "startTime") var startTime: Long,
     @ColumnInfo(name = "endTime") var endTime: Long,
+    @ColumnInfo(name = "startLocation") var startLocation: Pair<Double,Double>,
+    @ColumnInfo(name = "endLocation") var endLocation: Pair<Double,Double>,
+    @ColumnInfo(name = "isRide") var isRide: Boolean,
     @ColumnInfo(name = "URL") var URL: String = "CPH01"
 ){
 
@@ -25,5 +29,8 @@ data class Scooter(
     override fun toString(): String {
         return "Ride $id started using Scooter(name=$name, location=$location, timestamp=$startTime)"
     }
+
+
+
 }
 

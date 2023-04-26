@@ -2,6 +2,9 @@ package dk.itu.moapd.scootersharing.ahad.fragments
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -52,6 +55,7 @@ class MainFragment : Fragment() {
         get() = checkNotNull(_binding) {
             "Cannot access binding because it is null. Is the view visible?"
         }
+
 
     private lateinit var auth: FirebaseAuth
     private lateinit var storage: FirebaseStorage
@@ -224,5 +228,40 @@ class MainFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    private fun Address.toAddressString() : String {
+        val address = this
+        val stringBuilder = StringBuilder()
+        stringBuilder.apply {
+            append(address.getAddressLine(0))
+            append(address.locality)
+            append(address.postalCode)
+            append(address.countryName)
+        }
+        return stringBuilder.toString()
+    }
+
+    private fun setAddress(latitude: Double, longtitude: Double) {
+        val geocoder = context?.let { Geocoder(it, Locale.getDefault()) }
+        val geocodeListener = Geocoder.GeocodeListener { addresses ->
+            addresses.firstOrNull()?.toAddressString()?.let {address ->
+
+
+            }
+
+        }
+        if (Build.VERSION.SDK_INT >= 33)
+            geocoder?.getFromLocation(latitude, longitude, 1, geocodeListener)
+        else
+            geocoder?.getFromLocation(latitude, longitude, 1)?.let { addresses ->
+                addresses.firstOrNull()?.toAddressString()?.let { address ->
+                    currentAddress = address
+                }
+            }
+    }
+
+
+
+
 
 }
