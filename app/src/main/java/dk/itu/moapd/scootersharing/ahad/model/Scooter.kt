@@ -16,8 +16,10 @@ data class Scooter(
     @ColumnInfo(name = "location") var location: String?,
     @ColumnInfo(name = "startTime") var startTime: Long,
     @ColumnInfo(name = "endTime") var endTime: Long,
-    @ColumnInfo(name = "startLocation") var startLocation: Pair<Double,Double>,
-    @ColumnInfo(name = "endLocation") var endLocation: Pair<Double,Double>,
+    @ColumnInfo(name = "startLong") var startLong: Double,
+    @ColumnInfo(name = "startLat") var startLat: Double,
+    @ColumnInfo(name = "endLong") var currentLong: Double,
+    @ColumnInfo(name = "endLat") var currentLat: Double,
     @ColumnInfo(name = "isRide") var isRide: Boolean,
     @ColumnInfo(name = "URL") var URL: String = "CPH01"
 ){

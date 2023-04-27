@@ -11,6 +11,11 @@ data class History(
     @ColumnInfo(name = "name") val name: String?,
     @ColumnInfo(name = "location") var location: String?,
     @ColumnInfo(name = "time") var time: Long,
-    @ColumnInfo(name = "price") var price: Int
+    @ColumnInfo(name = "startLong") var startLong: Double,
+    @ColumnInfo(name = "startLat") var startLat: Double,
+    @ColumnInfo(name = "endLong") var endLong: Double,
+    @ColumnInfo(name = "endLat") var endLat: Double,
+    @ColumnInfo(name = "price") var price: Int,
+    @ColumnInfo(name = "URL") var URL: String = "CPH01"
 ){
 }

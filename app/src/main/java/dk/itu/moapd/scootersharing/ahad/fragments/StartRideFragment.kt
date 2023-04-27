@@ -188,9 +188,14 @@ class StartRideFragment : Fragment() {
                 val name = editTextName.editText?.text.toString().trim()
                 val location = editTextLocation.editText?.text.toString().trim()
                 val date = Calendar.getInstance().time.minutes.toLong()
-                val startLocation = currentLocation
-                val endLocation = null
-                val scooter = Scooter(0,name,location,date,date,Pair(startLocation.latitude,startLocation.longitude), ,true)
+                val startLocation = Pair(currentLocation!!.longitude,currentLocation!!.latitude)
+                val endLocation = Pair(currentLocation!!.longitude,currentLocation!!.latitude)
+                val scooter = Scooter(0,name,location,date,date,
+                    startLocation.first,
+                    startLocation.second,
+                    endLocation.first,
+                    endLocation.second,
+                    true)
                 if (name.equals("CPH02") || name.equals("CPH03"))
                     scooter.URL = name + ".jpg"
                 else
@@ -274,40 +279,6 @@ class StartRideFragment : Fragment() {
             Log.i(TAG,"no work, service no no")
         }
     }
-
-    private fun Address.toAddressString() : String {
-        val address = this
-        val stringBuilder = StringBuilder()
-        stringBuilder.apply {
-            append(address.getAddressLine(0))
-            append(address.locality)
-            append(address.postalCode)
-            append(address.countryName)
-        }
-        return stringBuilder.toString()
-    }
-
-    private fun setAddress(latitude: Double, longitude: Double) {
-        val geocoder = context?.let { Geocoder(it, Locale.getDefault()) }
-        val geocodeListener = Geocoder.GeocodeListener { addresses ->
-            addresses.firstOrNull()?.toAddressString()?.let {address ->
-
-
-            }
-
-        }
-        if (Build.VERSION.SDK_INT >= 33)
-            geocoder?.getFromLocation(latitude, longitude, 1, geocodeListener)
-        else
-            geocoder?.getFromLocation(latitude, longitude, 1)?.let { addresses ->
-                addresses.firstOrNull()?.toAddressString()?.let { address ->
-                    currentScooter.startLocation =
-                }
-            }
-    }
-
-
-
 
 
 

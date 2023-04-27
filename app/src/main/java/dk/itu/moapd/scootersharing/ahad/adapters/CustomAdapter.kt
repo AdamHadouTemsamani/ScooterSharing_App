@@ -42,6 +42,10 @@ class CustomAdapter() :
             binding.name.text = scooter.name
             binding.location.text = scooter.location
             binding.timestamp.text = scooter.startTime.toString()
+            val startLocation = Pair(scooter.startLong,scooter.startLat)
+            val currentLocation = Pair(scooter.currentLong,scooter.currentLat)
+            binding.startLocation.text = "Longtitude: " + startLocation.first.toString() + " Latitude: " + startLocation.second.toString()
+            binding.currentLocation.text = "Longtitude: " + currentLocation.first.toString() + " Latitude: " + currentLocation.second.toString()
         }
     }
 

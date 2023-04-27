@@ -1,18 +1,24 @@
 package dk.itu.moapd.scootersharing.ahad.fragments
 
-import android.content.Intent
+import android.Manifest
+import android.content.*
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
+import android.location.Location
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
+import dk.itu.moapd.scootersharing.ahad.MyLocationUpdateService
 import dk.itu.moapd.scootersharing.ahad.activities.*
 import dk.itu.moapd.scootersharing.ahad.utils.SwipeToDeleteCallback
 import dk.itu.moapd.scootersharing.ahad.adapters.CustomAdapter
@@ -38,10 +45,19 @@ import java.util.*
 class MainFragment : Fragment() {
 
     companion object {
+        private val TAG = MainFragment::class.java.simpleName
         private lateinit var adapter: CustomAdapter
         private lateinit var previousRidesAdapter: HistoryRideAdapter
         private const val ALL_PERMISSIONS_RESULT = 1011
     }
+
+    // A reference to the service used to get location updates.
+    private var mService: MyLocationUpdateService? = null
+
+    // Tracks the bound state of the service.
+    private var mBound = false
+
+    private lateinit var broadcastReceiver: MyReceiver
 
     /**
      * View binding is a feature that allows you to more easily write code that interacts with
@@ -96,6 +112,13 @@ class MainFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         storage = Firebase.storage("gs://moapd-2023-cc929.appspot.com")
 
+        broadcastReceiver = MyReceiver()
+        if(checkPermission()) requestUserPermissions()
+
+        context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
+            broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+        ) }
+
     }
 
 
@@ -123,8 +146,21 @@ class MainFragment : Fragment() {
             }
         }
 
+        context?.bindService(
+            Intent(context, MyLocationUpdateService::class.java), mServiceConnection,
+            Context.BIND_AUTO_CREATE
+        )
+
+        context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
+            broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+        ) }
+        mService?.requestLocationUpdates();
+
+
+
         return binding.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -207,8 +243,15 @@ class MainFragment : Fragment() {
                             scooter.endTime = Calendar.getInstance().time.minutes.toLong()
                             val diffTime = abs(scooter.startTime - scooter.endTime)
                             val previousRide = History(
-                                0,scooter.name, scooter.location,diffTime, (diffTime * 2).toInt()) //This needs to be auto incremented
-
+                                    0,scooter.name,
+                                    scooter.location,
+                                    diffTime,
+                                    scooter.startLong,
+                                    scooter.startLat,
+                                    scooter.currentLong,
+                                    scooter.currentLat,
+                                    (diffTime * 2).toInt(),
+                                    scooter.URL) //This needs to be auto incremented
                             scooterViewModel.delete(scooter)
                             historyViewModel.insert(previousRide)
                             previousRidesAdapter.notifyItemChanged(position)
@@ -222,44 +265,116 @@ class MainFragment : Fragment() {
             }
     }
 
+    override fun onResume() {
+        super.onResume()
+        Log.i(TAG,"I am resummeignng")
+        context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
+            broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+
+        ) }
+
+        Log.i(TAG,"I am resummeignng 2")
+        context?.startService(Intent(context,MyLocationUpdateService::class.java))
+        //subscribeToLocationUpdates()
+    }
+
+    override fun onPause() {
+        Log.i(TAG,"I am peeeeeingg")
+        super.onPause()
+        context?.let { LocalBroadcastManager.getInstance(it).unregisterReceiver(broadcastReceiver) }
+        //unsubscribeToLocationUpdates()
+    }
+
+
+
 
 
     override fun onDestroyView() {
         super.onDestroyView()
+
+        if (mBound) {
+            context?.unbindService(mServiceConnection)
+            mBound = false
+        }
+        context?.stopService(Intent(context,MyLocationUpdateService::class.java))
+
         _binding = null
+
     }
 
-    private fun Address.toAddressString() : String {
-        val address = this
-        val stringBuilder = StringBuilder()
-        stringBuilder.apply {
-            append(address.getAddressLine(0))
-            append(address.locality)
-            append(address.postalCode)
-            append(address.countryName)
-        }
-        return stringBuilder.toString()
+    private fun requestUserPermissions() {
+        //An array with permissions.
+        val permissions: ArrayList<String> = ArrayList()
+        permissions.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
+        permissions.add(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+
+        //Check which permissions is needed to ask to the user.
+        val permissionsToRequest = permissionsToRequest(permissions)
+
+        //Show the permissions dialogue to the user.
+        if (permissionsToRequest.size > 0)
+            requestPermissions(
+                permissionsToRequest.toTypedArray(),
+                ALL_PERMISSIONS_RESULT
+            )
     }
 
-    private fun setAddress(latitude: Double, longtitude: Double) {
-        val geocoder = context?.let { Geocoder(it, Locale.getDefault()) }
-        val geocodeListener = Geocoder.GeocodeListener { addresses ->
-            addresses.firstOrNull()?.toAddressString()?.let {address ->
+    private fun checkPermission() =
+        context?.let {
+            ContextCompat.checkSelfPermission(
+                it, Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        } != PackageManager.PERMISSION_GRANTED &&
+                context?.let {
+                    ContextCompat.checkSelfPermission(
+                        it, Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                } != PackageManager.PERMISSION_GRANTED
+
+    private fun permissionsToRequest(permissions: ArrayList<String>): ArrayList<String> {
+        val result: ArrayList<String> = ArrayList()
+        for (permission in permissions)
+            if (context?.let { PermissionChecker.checkSelfPermission(it, permission) } != PackageManager.PERMISSION_GRANTED)
+                result.add(permission)
+
+        return result
+    }
 
 
-            }
-
-        }
-        if (Build.VERSION.SDK_INT >= 33)
-            geocoder?.getFromLocation(latitude, longitude, 1, geocodeListener)
-        else
-            geocoder?.getFromLocation(latitude, longitude, 1)?.let { addresses ->
-                addresses.firstOrNull()?.toAddressString()?.let { address ->
-                    currentAddress = address
+    private inner class MyReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            val location: Location? =
+                intent.extras?.getParcelable(MyLocationUpdateService.EXTRA_LOCATION)
+            if (location != null) {
+                for (ride in adapter.currentList) {
+                    ride.currentLong = location.longitude
+                    ride.currentLat = location.latitude
                 }
             }
+            if(location == null) Log.i(TAG,"There is no location dumbass")
+        }
+
     }
 
+
+
+
+
+
+    // Monitors the state of the connection to the service.
+    private val mServiceConnection: ServiceConnection = object : ServiceConnection {
+
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            val binder: MyLocationUpdateService.LocalBinder = service as MyLocationUpdateService.LocalBinder
+            mService = binder.getService()
+            mBound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            mService = null
+            mBound = false
+        }
+    }
 
 
 

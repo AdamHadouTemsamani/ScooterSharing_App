@@ -6,6 +6,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import dk.itu.moapd.scootersharing.ahad.databinding.ListPreviousRidesBinding
 import dk.itu.moapd.scootersharing.ahad.model.History
 
@@ -19,10 +23,30 @@ class HistoryRideAdapter() :
             RecyclerView.ViewHolder(binding.root) {
 
             fun bind(previousRides : History) {
-                    binding.name.text = previousRides.name
-                    binding.location.text = previousRides.location
-                    binding.time.text = previousRides.time.toString()
-                    binding.price.text = previousRides.price.toString()
+                // Get the public thumbnail URL.
+                val storage = Firebase.storage("gs://moapd-2023-cc929.appspot.com")
+                val imageRef = storage.reference.child(previousRides.URL)
+
+                // Clean the image UI component.
+                binding.image.setImageResource(0)
+
+                // Download and set an image into the ImageView.
+                imageRef.downloadUrl.addOnSuccessListener {
+                    Glide.with(itemView.context)
+                        .load(it)
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .centerCrop()
+                        .into(binding.image)
+                }
+
+                binding.name.text = previousRides.name
+                binding.location.text = previousRides.location
+                binding.time.text = previousRides.time.toString()
+                val startLocation = Pair(previousRides.startLong,previousRides.startLat)
+                val endLocation = Pair(previousRides.endLong,previousRides.endLat)
+                binding.startLocation.text = "Longtitude: " + startLocation.first.toString() + " Latitude: " + startLocation.second.toString()
+                binding.endLocation.text = "Longtitude: " + endLocation.first.toString() + " Latitude: " + endLocation.second.toString()
+                binding.price.text = previousRides.price.toString()
             }
         }
 

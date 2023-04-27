@@ -24,5 +24,7 @@
     <string name="find_scooter_button">Find Scooter</string>
     <string name="address_text">Current Address</string>
     <string name="currentLocation">Current Location</string>
+    <string name="startLocation">Start Location</string>
+    <string name="endLocation">End Location</string>
 
 </resources>
