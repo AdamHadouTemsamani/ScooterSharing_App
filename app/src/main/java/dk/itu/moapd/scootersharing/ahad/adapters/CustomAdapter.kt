@@ -16,9 +16,6 @@ import dk.itu.moapd.scootersharing.ahad.databinding.ListRidesBinding
 class CustomAdapter() :
     ListAdapter<Scooter, CustomAdapter.ViewHolder>(ScooterComparator()) {
 
-    private lateinit var deletedScooter: Scooter
-    private var scooterIndex: Int = 0
-
     class ViewHolder(private val binding: ListRidesBinding) :
         RecyclerView.ViewHolder(binding.root) {
 

@@ -7,26 +7,31 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.viewModels
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.lifecycle.asLiveData
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import dk.itu.moapd.scootersharing.ahad.R
-import dk.itu.moapd.scootersharing.ahad.activities.MapsActivity
 import dk.itu.moapd.scootersharing.ahad.adapters.CustomAdapter
 import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
-import dk.itu.moapd.scootersharing.ahad.databinding.FragmentMainBinding
+import dk.itu.moapd.scootersharing.ahad.database.ScooterDatabase
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentMapsBinding
+import dk.itu.moapd.scootersharing.ahad.model.Scooter
+import dk.itu.moapd.scootersharing.ahad.model.ScooterRepository
 import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModel
 import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModelFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+
 
 class MapsFragment : Fragment(), OnMapReadyCallback {
 
@@ -37,6 +42,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     }
 
     private var _binding: FragmentMapsBinding? = null
+
+    private lateinit var currentList: List<Scooter>
 
     private val binding
         get() = checkNotNull(_binding) {
@@ -51,10 +58,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val mapFragment = childFragmentManager
-            .findFragmentById(R.id.google_maps) as SupportMapFragment?
-
-        mapFragment?.getMapAsync(this)
     }
 
     override fun onCreateView(
@@ -62,18 +65,39 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val view = inflater.inflate(dk.itu.moapd.scootersharing.ahad.R.layout.fragment_maps,container,false)
+
+        val mapFragment = childFragmentManager
+            .findFragmentById(dk.itu.moapd.scootersharing.ahad.R.id.google_maps) as SupportMapFragment?
+
+        mapFragment?.getMapAsync(this)
+
         Log.i(TAG,"View has been created :D")
-        _binding = FragmentMapsBinding.inflate(inflater,container,false)
         adapter = CustomAdapter()
 
-        scooterViewModel.scooters.observe(viewLifecycleOwner) { scooters ->
+
+        Log.i(TAG,"Current scooter size: " + adapter.currentList.size)
+
+
+        scooterViewModel.scooters.observe(viewLifecycleOwner, Observer {  scooters ->
             scooters?.let {
                 adapter.submitList(it)
             }
+        })
+
+        val b = scooterViewModel.scooters.value
+        if (b != null) {
+            for(a in b) {
+                Log.i(TAG,"The database has scooters the database has scoooters!!!")
+            }
+        }
+        if (b == null) {
+            Log.i(TAG,"It is null!!!")
         }
 
+
         requestUserPermissions()
-        return binding.root
+        return view
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -101,15 +125,23 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
         val itu = LatLng(55.6596, 12.5910)
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(itu, 18f))
-
+        val adapter = adapter as CustomAdapter
+        Log.i(TAG,"About to print scooter name")
+        val scooter = Scooter(0,"CPH01","ITU",0,0,12.5910,55.6596,12.5910,55.6596,true)
         for (ride in adapter.currentList) {
             Log.i(TAG,"Current scooter name:" + ride.name)
             googleMap.addMarker(
                 MarkerOptions()
                     .position(LatLng(ride.currentLat,ride.currentLong))
-                    .title("Marker in IT University of Copenhagen")
+                    .title(ride.name)
             )
         }
+
+        googleMap.addMarker(
+            MarkerOptions()
+                .position(LatLng(scooter.currentLat,scooter.currentLong))
+                .title(scooter.name)
+        )
 
         // Move the Google Maps UI buttons under the OS top bar.
         googleMap.setPadding(0, 100, 0, 0)

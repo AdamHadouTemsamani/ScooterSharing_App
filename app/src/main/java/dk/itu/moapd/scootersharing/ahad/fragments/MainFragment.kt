@@ -137,19 +137,26 @@ class MainFragment : Fragment() {
         binding.listRides.layoutManager = LinearLayoutManager(activity)
         // Collecting data from the dataset.
         adapter = CustomAdapter()
+        Log.i(TAG,"Current size of Scooter" + adapter.currentList.size)
+
         previousRidesAdapter = HistoryRideAdapter()
 
         scooterViewModel.scooters.observe(viewLifecycleOwner) { scooters ->
             scooters?.let {
                 adapter.submitList(it)
+
             }
         }
+        Log.i(TAG,"2 Current size of Scooter" + adapter.currentList.size)
 
         historyViewModel.previousRides.observe(viewLifecycleOwner) { previousRides ->
             previousRides?.let {
                 previousRidesAdapter.submitList(it)
             }
         }
+
+        Log.i(TAG,"7 Current size of Scooter" + adapter.currentList.size)
+
 
         context?.bindService(
             Intent(context, MyLocationUpdateService::class.java), mServiceConnection,
@@ -169,6 +176,7 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.i(TAG,"8 Current size of Scooter" + adapter.currentList.size)
 
         with (binding) {
             startRideButton.setOnClickListener {
@@ -196,14 +204,17 @@ class MainFragment : Fragment() {
                     .addToBackStack(null)
                     .commit()
             }
+            Log.i(TAG,"3 Current size of Scooter" + adapter.currentList.size)
 
             showRidesButton.setOnClickListener {
                 // Create the custom adapter to populate a list of rides.
+                Log.i(TAG,"4 Current size of Scooter" + adapter.currentList.size)
                 binding.listRides.layoutManager = LinearLayoutManager(activity)
                 binding.listRides.addItemDecoration(
                     DividerItemDecoration(activity,DividerItemDecoration.VERTICAL)
                 )
                 binding.listRides.adapter = adapter
+                Log.i(TAG,"5 Current size of Scooter" + adapter.currentList.size)
                 listRides.visibility = if (listRides.visibility == View.VISIBLE){
                     View.INVISIBLE
                 } else{
@@ -263,6 +274,7 @@ class MainFragment : Fragment() {
             val itemTouchHelper = ItemTouchHelper(swipeHandler)
             itemTouchHelper.attachToRecyclerView(binding.listRides)
             }
+        Log.i(TAG,"9 Current size of Scooter" + adapter.currentList.size)
     }
 
     override fun onResume() {
@@ -284,10 +296,6 @@ class MainFragment : Fragment() {
         context?.let { LocalBroadcastManager.getInstance(it).unregisterReceiver(broadcastReceiver) }
         //unsubscribeToLocationUpdates()
     }
-
-
-
-
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -351,14 +359,9 @@ class MainFragment : Fragment() {
                     ride.currentLat = location.latitude
                 }
             }
-            if(location == null) Log.i(TAG,"There is no location dumbass")
         }
 
     }
-
-
-
-
 
 
     // Monitors the state of the connection to the service.
