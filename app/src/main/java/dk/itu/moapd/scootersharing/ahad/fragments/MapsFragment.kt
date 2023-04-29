@@ -51,10 +51,10 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val mapFragment = requireActivity().supportFragmentManager
-            .findFragmentById(R.id.google_maps) as SupportMapFragment
+        val mapFragment = childFragmentManager
+            .findFragmentById(R.id.google_maps) as SupportMapFragment?
 
-        mapFragment.getMapAsync(this)
+        mapFragment?.getMapAsync(this)
     }
 
     override fun onCreateView(
@@ -62,6 +62,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.i(TAG,"View has been created :D")
         _binding = FragmentMapsBinding.inflate(inflater,container,false)
         adapter = CustomAdapter()
 
@@ -79,6 +80,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         if (checkPermission())
             return
 
+        Log.i(TAG,"Map is now running")
         // Show the current device's location as a blue dot.
         googleMap.isMyLocationEnabled = true
 
@@ -98,6 +100,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         }
 
         val itu = LatLng(55.6596, 12.5910)
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(itu, 18f))
 
         for (ride in adapter.currentList) {
             Log.i(TAG,"Current scooter name:" + ride.name)
@@ -107,7 +110,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     .title("Marker in IT University of Copenhagen")
             )
         }
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(itu, 18f))
 
         // Move the Google Maps UI buttons under the OS top bar.
         googleMap.setPadding(0, 100, 0, 0)

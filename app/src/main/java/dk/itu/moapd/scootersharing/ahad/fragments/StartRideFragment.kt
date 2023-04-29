@@ -181,7 +181,7 @@ class StartRideFragment : Fragment() {
         with (binding) {
             if ( editTextName.editText?.text.toString().isNotEmpty() && editTextLocation.editText?.text.toString().isNotEmpty()) {
                 if(currentLocation == null) {
-                    showMessage("Your location is currently null. Please pause and open the application")
+                    showMessage("Your location is currently null. Please go back to Main Screen and try again!")
                     return
                 }
                 //Update the object attributes
