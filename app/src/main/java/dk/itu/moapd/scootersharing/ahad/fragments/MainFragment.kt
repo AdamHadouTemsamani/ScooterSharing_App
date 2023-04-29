@@ -29,6 +29,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 import dk.itu.moapd.scootersharing.ahad.MyLocationUpdateService
+import dk.itu.moapd.scootersharing.ahad.R
 import dk.itu.moapd.scootersharing.ahad.activities.*
 import dk.itu.moapd.scootersharing.ahad.utils.SwipeToDeleteCallback
 import dk.itu.moapd.scootersharing.ahad.adapters.CustomAdapter
@@ -119,6 +120,10 @@ class MainFragment : Fragment() {
             broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
         ) }
 
+        if (auth.currentUser == null) {
+            val intent = Intent(activity, LoginActivity::class.java)
+            startActivity(intent)
+        }
     }
 
 
@@ -164,29 +169,32 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (auth.currentUser != null)
-            binding.loginButton.text = "Sign Out"
-        if (auth.currentUser == null)
-            binding.loginButton.text = "Sign In"
 
         with (binding) {
             startRideButton.setOnClickListener {
-                val intent = Intent(activity, StartRideActivity::class.java)
-                startActivity(intent)
-                activity?.finish()
+                val fragment = StartRideFragment()
+                requireActivity().supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.fragment_container_view,fragment)
+                    .addToBackStack(null)
+                    .commit()
             }
-
             updateRideButton.setOnClickListener {
-                val intent = Intent(activity, UpdateRideActivity::class.java)
-                startActivity(intent)
-                activity?.finish()
+                val fragment = UpdateRideFragment()
+                requireActivity().supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.fragment_container_view,fragment)
+                    .addToBackStack(null)
+                    .commit()
             }
 
             findScooterButton.setOnClickListener {
-                val intentData = new Intent(MainFragment,)
-                val intent = Intent(activity, MapsActivity::class.java)
-                startActivity(intent)
-                activity?.finish()
+                val fragment = MapsFragment()
+                requireActivity().supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.fragment_container_view,fragment)
+                    .addToBackStack(null)
+                    .commit()
             }
 
             showRidesButton.setOnClickListener {
@@ -205,23 +213,14 @@ class MainFragment : Fragment() {
             }
 
             historyRideButton.setOnClickListener {
-                val intent = Intent(activity, HistoryRideActivity::class.java)
-                startActivity(intent)
-                activity?.finish()
+                val fragment = HistoryRideFragment()
+                requireActivity().supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.fragment_container_view,fragment)
+                    .addToBackStack(null)
+                    .commit()
             }
 
-            loginButton.setOnClickListener {
-                if (auth.currentUser == null) {
-                    val intent = Intent(activity, LoginActivity::class.java)
-                    startActivity(intent)
-                    loginButton.text = "Sign Out"
-                }
-                if (auth.currentUser != null) {
-                    auth.signOut()
-                    loginButton.text = "Sign In"
-                }
-                val user = auth.currentUser
-            }
 
             //Adding swipe option
             val swipeHandler = object : SwipeToDeleteCallback() {

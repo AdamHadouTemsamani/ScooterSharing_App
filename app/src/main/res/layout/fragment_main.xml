@@ -66,8 +66,8 @@
         app:iconGravity="textStart" />
 
 
-
-    <Button
+    <!--
+      <Button
         android:id="@+id/login_button"
         style="@style/Widget.Material3.Button"
         android:layout_width="142dp"
@@ -78,6 +78,8 @@
         android:textSize="14sp"
         app:icon="@drawable/baseline_login_24"
         app:iconGravity="textStart" />
+      -->
+
 
     <Button
         android:id="@+id/history_ride_button"
