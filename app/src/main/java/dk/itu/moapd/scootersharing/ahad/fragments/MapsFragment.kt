@@ -38,12 +38,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     companion object {
         private val TAG = MapsFragment::class.java.simpleName
         private const val ALL_PERMISSIONS_RESULT = 1011
-        private lateinit var adapter: CustomAdapter
     }
 
     private var _binding: FragmentMapsBinding? = null
 
-    private lateinit var currentList: List<Scooter>
+    private lateinit var adapter: CustomAdapter
 
     private val binding
         get() = checkNotNull(_binding) {
@@ -85,17 +84,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             }
         })
 
-        val b = scooterViewModel.scooters.value
-        if (b != null) {
-            for(a in b) {
-                Log.i(TAG,"The database has scooters the database has scoooters!!!")
-            }
-        }
-        if (b == null) {
-            Log.i(TAG,"It is null!!!")
-        }
-
-
         requestUserPermissions()
         return view
     }
@@ -125,9 +113,9 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
         val itu = LatLng(55.6596, 12.5910)
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(itu, 18f))
-        val adapter = adapter as CustomAdapter
         Log.i(TAG,"About to print scooter name")
         val scooter = Scooter(0,"CPH01","ITU",0,0,12.5910,55.6596,12.5910,55.6596,true)
+        val adapter = adapter
         for (ride in adapter.currentList) {
             Log.i(TAG,"Current scooter name:" + ride.name)
             googleMap.addMarker(
