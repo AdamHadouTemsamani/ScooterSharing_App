@@ -183,7 +183,8 @@ class MainFragment : Fragment() {
             }
 
             findScooterButton.setOnClickListener {
-                val intent = Intent(activity, LocationActivity::class.java)
+                val intentData = new Intent(MainFragment,)
+                val intent = Intent(activity, MapsActivity::class.java)
                 startActivity(intent)
                 activity?.finish()
             }
