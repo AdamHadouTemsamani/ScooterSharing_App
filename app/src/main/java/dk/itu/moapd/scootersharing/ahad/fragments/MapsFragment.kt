@@ -78,12 +78,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         Log.i(TAG,"Current scooter size: " + adapter.currentList.size)
 
 
-        scooterViewModel.scooters.observe(viewLifecycleOwner, Observer {  scooters ->
-            scooters?.let {
-                adapter.submitList(it)
-            }
-        })
-
         requestUserPermissions()
         return view
     }

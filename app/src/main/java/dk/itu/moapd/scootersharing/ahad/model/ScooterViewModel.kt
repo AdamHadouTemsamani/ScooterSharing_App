@@ -5,6 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.asLiveData
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 
 class ScooterViewModel(private val repository: ScooterRepository) : ViewModel() {
@@ -22,6 +27,11 @@ class ScooterViewModel(private val repository: ScooterRepository) : ViewModel() 
     fun delete(scooter: Scooter) = viewModelScope.launch {
         repository.delete(scooter)
     }
+
+    fun getScooters() = viewModelScope.async {
+        repository.scooters.toList()
+    }
+
 
 }
 

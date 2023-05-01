@@ -73,6 +73,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
+    implementation 'com.github.yuriy-budiyev:code-scanner:2.3.2'
     implementation 'com.google.firebase:firebase-storage-ktx'
     implementation 'com.google.firebase:firebase-database-ktx'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'

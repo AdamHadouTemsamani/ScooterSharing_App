@@ -208,6 +208,9 @@ class MainFragment : Fragment() {
             Log.i(TAG,"3 Current size of Scooter" + adapter.currentList.size)
 
             showRidesButton.setOnClickListener {
+                for (ride in adapter.currentList) {
+                    setAddress(ride.currentLat,ride.currentLong)
+                }
                 // Create the custom adapter to populate a list of rides.
                 Log.i(TAG,"4 Current size of Scooter" + adapter.currentList.size)
                 binding.listRides.layoutManager = LinearLayoutManager(activity)
@@ -221,6 +224,7 @@ class MainFragment : Fragment() {
                 } else{
                     View.VISIBLE
                 }
+                Log.i(TAG,"Scooter id: " + adapter.currentList[0].id)
 
             }
 
@@ -390,6 +394,37 @@ class MainFragment : Fragment() {
             mService = null
             mBound = false
         }
+    }
+
+    private fun Address.toAddressString() : String {
+        val address = this
+        val stringBuilder = StringBuilder()
+        stringBuilder.apply {
+            append(address.getAddressLine(0))
+        }
+        return stringBuilder.toString()
+    }
+
+    private fun setAddress(latitude: Double, longitude: Double) {
+        val geocoder = context?.let { Geocoder(it, Locale.getDefault()) }
+        val geocodeListener = Geocoder.GeocodeListener { addresses ->
+            addresses.firstOrNull()?.toAddressString()?.let {address ->
+                for(ride in adapter.currentList) {
+                    ride.location = address
+                }
+            }
+
+        }
+        if (Build.VERSION.SDK_INT >= 33)
+            geocoder?.getFromLocation(latitude, longitude, 1, geocodeListener)
+        else
+            geocoder?.getFromLocation(latitude, longitude, 1)?.let { addresses ->
+                addresses.firstOrNull()?.toAddressString()?.let { address ->
+                    for(ride in adapter.currentList) {
+                        ride.location = address
+                    }
+                }
+            }
     }
 
 

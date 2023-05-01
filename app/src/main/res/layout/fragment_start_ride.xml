@@ -45,26 +45,22 @@
         android:orientation="horizontal"
         android:layout_margin="5dp">
 
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/edit_text_location"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/hint_text_location"
-            app:startIconDrawable="@drawable/baseline_add_location_24"
-
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
     </LinearLayout>
 
     <!-- Button to start a ride -->
+
+
+    <Button
+        android:id="@+id/scan_scooter_button"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_margin="5dp"
+        android:text="@string/scan_scooter_button"
+        android:textSize="14sp"
+        app:icon="@drawable/baseline_qr_code_scanner_24"
+        app:iconGravity="textStart" />
 
     <Button
         android:id="@+id/start_ride_button"

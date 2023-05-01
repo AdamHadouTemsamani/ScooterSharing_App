@@ -22,6 +22,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dk.itu.moapd.scootersharing.ahad.MyLocationUpdateService
+import dk.itu.moapd.scootersharing.ahad.R
 import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentStartRideBinding
 import dk.itu.moapd.scootersharing.ahad.model.Scooter
@@ -117,6 +118,22 @@ class StartRideFragment : Fragment() {
                     .show()
             }
 
+            scanScooterButton.setOnClickListener {
+                if(!isLocationNull()) {
+                    Log.i(TAG, "I am sending the following data: " +currentLocation?.latitude.toString())
+                    val fragment = QrcodeFragment()
+                    val args = Bundle()
+                    args.putString("currentLat",currentLocation!!.latitude.toString())
+                    args.putString("currentLong",currentLocation!!.longitude.toString())
+                    requireActivity().supportFragmentManager
+                        .beginTransaction()
+                        .replace(R.id.fragment_container_view,fragment)
+                        .addToBackStack(null)
+                        .commit()
+                } else {
+                    showMessage("Your location is currently null. Please exit back to the main menu and try again!")
+                }
+            }
         }
         context?.startService(Intent(context, MyLocationUpdateService::class.java))
     }
@@ -141,8 +158,14 @@ class StartRideFragment : Fragment() {
         super.onResume()
         context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
             broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
-
         ) }
+
+        if(currentLocation != null) {
+            val args = Bundle()
+            args.putDouble("currentLat",currentLocation!!.latitude)
+            args.putDouble("currentLong",currentLocation!!.longitude)
+        }
+
     }
 
     override fun onDestroyView() {
@@ -179,14 +202,14 @@ class StartRideFragment : Fragment() {
      */
     private fun addScooter() {
         with (binding) {
-            if ( editTextName.editText?.text.toString().isNotEmpty() && editTextLocation.editText?.text.toString().isNotEmpty()) {
+            if ( editTextName.editText?.text.toString().isNotEmpty()) {
                 if(currentLocation == null) {
                     showMessage("Your location is currently null. Please go back to Main Screen and try again!")
                     return
                 }
                 //Update the object attributes
                 val name = editTextName.editText?.text.toString().trim()
-                val location = editTextLocation.editText?.text.toString().trim()
+                val location = "Something went wrong?"
                 val date = Calendar.getInstance().time.minutes.toLong()
                 val startLocation = Pair(currentLocation!!.longitude,currentLocation!!.latitude)
                 val endLocation = Pair(currentLocation!!.longitude,currentLocation!!.latitude)
@@ -198,9 +221,9 @@ class StartRideFragment : Fragment() {
                     true)
                     scooter.URL = name + ".jpg"
                 scooterViewModel.insert(scooter)
+
                 //Reset the text fields and update the UI
                 editTextName.editText?.text?.clear()
-                editTextLocation.editText?.text?.clear()
                 showMessage("Ride started!")
             }
         }
@@ -276,6 +299,16 @@ class StartRideFragment : Fragment() {
             Log.i(TAG,"no work, service no no")
         }
     }
+
+    private fun isLocationNull() : Boolean {
+        return currentLocation == null
+    }
+
+
+
+
+
+
 
 
 
