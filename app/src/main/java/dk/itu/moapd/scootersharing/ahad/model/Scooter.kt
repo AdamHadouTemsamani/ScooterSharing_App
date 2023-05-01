@@ -4,13 +4,15 @@ import android.location.Location
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import dk.itu.moapd.scootersharing.ahad.fragments.CameraFragment
+import java.io.Serializable
 import java.util.*
 
 /**
  * A data class that encapsulates the information about a scooter
  */
 @Entity(tableName = "scooter")
-data class Scooter(
+data class Scooter (
     @PrimaryKey(autoGenerate = true) val id: Int,
     @ColumnInfo(name = "name") val name: String?,
     @ColumnInfo(name = "location") var location: String?,
@@ -23,6 +25,7 @@ data class Scooter(
     @ColumnInfo(name = "isRide") var isRide: Boolean,
     @ColumnInfo(name = "URL") var URL: String = "CPH01"
 ){
+
 
     /**
      * Returns a formatted string with the information of the Scooter object

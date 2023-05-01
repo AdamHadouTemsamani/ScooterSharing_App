@@ -35,6 +35,7 @@ import dk.itu.moapd.scootersharing.ahad.utils.SwipeToDeleteCallback
 import dk.itu.moapd.scootersharing.ahad.adapters.CustomAdapter
 import dk.itu.moapd.scootersharing.ahad.adapters.HistoryRideAdapter
 import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
+import dk.itu.moapd.scootersharing.ahad.application.TAG
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentMainBinding
 import dk.itu.moapd.scootersharing.ahad.model.*
 import java.lang.Math.abs
@@ -241,34 +242,46 @@ class MainFragment : Fragment() {
                     val adapter = listRides.adapter as CustomAdapter
                     val position = viewHolder.adapterPosition
 
-                    MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("Are you sure you want to end this ride?")
-                        .setMessage("Once you accept you can't undo it.")
+                    val dialog = MaterialAlertDialogBuilder(requireContext())
+                    dialog.create()
 
-                        .setNegativeButton("Decline") { dialog, which ->
-                            adapter.notifyItemChanged(position)
-                            Log.d("TAG", "Ride has not been finished")
-                        }
-                        .setPositiveButton("Accept") { dialog, which ->
-                            val scooter = adapter.currentList[position]
-                            scooter.endTime = Calendar.getInstance().time.minutes.toLong()
-                            val diffTime = abs(scooter.startTime - scooter.endTime)
-                            val previousRide = History(
-                                    0,scooter.name,
-                                    scooter.location,
-                                    diffTime,
-                                    scooter.startLong,
-                                    scooter.startLat,
-                                    scooter.currentLong,
-                                    scooter.currentLat,
-                                    (diffTime * 2).toInt(),
-                                    scooter.URL) //This needs to be auto incremented
-                            scooterViewModel.delete(scooter)
-                            historyViewModel.insert(previousRide)
-                            previousRidesAdapter.notifyItemChanged(position)
-                            Log.d("TAG", "Ride has been finished succesfully")
-                        }
-                        .show()
+                    dialog.setTitle("Are you sure you want to end this ride?")
+                    dialog.setMessage("Once you accept you can't undo it.")
+                    dialog.setNegativeButton("Decline") { dialog, which ->
+                        adapter.notifyItemChanged(position)
+                        Log.d("TAG", "Ride has not been finished")
+                    }
+                    dialog.setPositiveButton("Accept") { dialog, which ->
+                        val scooter = adapter.currentList[position]
+                        Log.i(TAG,"Scooter URL" + scooter.URL)
+                        scooter.endTime = Calendar.getInstance().time.minutes.toLong()
+                        val diffTime = abs(scooter.startTime - scooter.endTime)
+                        val previousRide = History(
+                            0,scooter.name,
+                            scooter.location,
+                            diffTime,
+                            scooter.startLong,
+                            scooter.startLat,
+                            scooter.currentLong,
+                            scooter.currentLat,
+                            (diffTime * 2).toInt(),
+                            scooter.URL) //This needs to be auto incremented
+                        scooterViewModel.delete(scooter)
+                        historyViewModel.insert(previousRide)
+                        previousRidesAdapter.notifyItemChanged(position)
+
+                        val fragment = CameraFragment()
+                        val args = Bundle()
+                        args.putString("Scooter",scooter.name)
+                        fragment.arguments = args
+                        requireActivity().supportFragmentManager
+                            .beginTransaction()
+                            .replace(R.id.fragment_container_view,fragment)
+                            .addToBackStack(null)
+                            .commit()
+                        scooter.URL = scooter.name + ".jpg"
+                        Log.d("TAG", "Ride has been finished succesfully")
+                    }.show()
                 }
             }
             val itemTouchHelper = ItemTouchHelper(swipeHandler)
@@ -383,3 +396,4 @@ class MainFragment : Fragment() {
 
 
 }
+
