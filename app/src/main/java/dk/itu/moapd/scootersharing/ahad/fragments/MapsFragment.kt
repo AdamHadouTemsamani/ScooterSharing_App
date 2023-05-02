@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.map
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -31,6 +32,7 @@ import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModel
 import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.map
 
 
 class MapsFragment : Fragment(), OnMapReadyCallback {
@@ -110,20 +112,16 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         Log.i(TAG,"About to print scooter name")
         val scooter = Scooter(0,"CPH01","ITU",0,0,12.5910,55.6596,12.5910,55.6596,true)
         val adapter = adapter
-        for (ride in adapter.currentList) {
+        scooterViewModel.scooters.observe(viewLifecycleOwner) {
+            for (ride in it) {
             Log.i(TAG,"Current scooter name:" + ride.name)
-            googleMap.addMarker(
-                MarkerOptions()
-                    .position(LatLng(ride.currentLat,ride.currentLong))
-                    .title(ride.name)
-            )
+                googleMap.addMarker(
+                    MarkerOptions()
+                        .position(LatLng(ride.currentLat,ride.currentLong))
+                        .title(ride.name)
+                )
+            }
         }
-
-        googleMap.addMarker(
-            MarkerOptions()
-                .position(LatLng(scooter.currentLat,scooter.currentLong))
-                .title(scooter.name)
-        )
 
         // Move the Google Maps UI buttons under the OS top bar.
         googleMap.setPadding(0, 100, 0, 0)

@@ -16,6 +16,7 @@ class ScooterViewModel(private val repository: ScooterRepository) : ViewModel() 
 
     val scooters : LiveData<List<Scooter>> = repository.scooters.asLiveData()
 
+
     fun insert(scooter: Scooter) = viewModelScope.launch {
         repository.insert(scooter)
     }
@@ -28,9 +29,6 @@ class ScooterViewModel(private val repository: ScooterRepository) : ViewModel() 
         repository.delete(scooter)
     }
 
-    fun getScooters() = viewModelScope.async {
-        repository.scooters.toList()
-    }
 
 
 }
