@@ -8,10 +8,11 @@ import androidx.room.TypeConverters
 import dk.itu.moapd.scootersharing.ahad.model.*
 import dk.itu.moapd.scootersharing.ahad.utils.Converters
 
-@Database(entities = [Scooter::class, History::class], version = 1)
+@Database(entities = [Scooter::class, History::class, UserBalance::class], version = 1)
 abstract class ScooterDatabase : RoomDatabase() {
     abstract fun scooterDao() : ScooterDao
     abstract fun historyDao() : HistoryDao
+    abstract fun userDao() : UserDao
 
     companion object {
         @Volatile

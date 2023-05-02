@@ -27,4 +27,13 @@
     <string name="startLocation">Start Location</string>
     <string name="endLocation">End Location</string>
     <string name="scan_scooter_button">Scan QR Code</string>
+    <string name="hint_cvv">CVV</string>
+    <string name="hint_expire">Expiration Date</string>
+    <string name="hint_cardnumber">Card Number</string>
+    <string name="card">Add Card Information</string>
+    <string name="balance_text">Your balance is currently</string>
+    <string name="current_balance">Current Balance</string>
+    <string name="remove_card_button">Remove Card</string>
+    <string name="add_currency_button">Add More Balance</string>
+    <string name="see_balance_button">See Balance</string>
 </resources>

@@ -32,7 +32,7 @@
     <Button
         android:id="@+id/start_ride_button"
         style="@style/Widget.Material3.Button"
-        android:layout_width="150dp"
+        android:layout_width="162dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="5dp"
@@ -44,19 +44,19 @@
     <Button
         android:id="@+id/update_ride_button"
         style="@style/Widget.Material3.Button"
-        android:layout_width="wrap_content"
+        android:layout_width="160dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="5dp"
         android:text="@string/update_ride_button"
         android:textSize="14sp"
         app:icon="@drawable/baseline_create_24"
-        app:iconGravity="textStart"/>
+        app:iconGravity="textStart" />
 
     <Button
         android:id="@+id/find_scooter_button"
         style="@style/Widget.Material3.Button"
-        android:layout_width="150dp"
+        android:layout_width="163dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="5dp"
@@ -66,44 +66,43 @@
         app:iconGravity="textStart" />
 
 
-    <!--
-      <Button
-        android:id="@+id/login_button"
+    <Button
+        android:id="@+id/see_balance_button"
         style="@style/Widget.Material3.Button"
-        android:layout_width="142dp"
+        android:layout_width="161dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="5dp"
-        android:text="@string/login_button"
+        android:text="@string/see_balance_button"
         android:textSize="14sp"
-        app:icon="@drawable/baseline_login_24"
+        app:icon="@drawable/baseline_credit_card_24"
         app:iconGravity="textStart" />
-      -->
 
 
     <Button
         android:id="@+id/history_ride_button"
         style="@style/Widget.Material3.Button"
-        android:layout_width="wrap_content"
+        android:layout_width="163dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="5dp"
         android:text="@string/history_ride_button"
         android:textSize="14sp"
         app:icon="@drawable/baseline_history_24"
-        app:iconGravity="textStart"/>
+        app:iconGravity="textStart" />
+
 
     <Button
         android:id="@+id/show_rides_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         style="@style/Widget.Material3.Button"
+        android:layout_width="157dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="5dp"
-        android:textSize="14sp"
         android:text="@string/show_rides_button"
+        android:textSize="14sp"
         app:icon="@drawable/baseline_format_list_bulleted_24"
-        app:iconGravity="textStart"/>
+        app:iconGravity="textStart" />
 
 
     <!-- List items using MaterialDesign Cards -->

@@ -9,7 +9,6 @@ import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 
-private const val DATABASE_NAME = "scooter_database"
 
 class ScooterRepository(private val scooterDao: ScooterDao) {
 
@@ -29,6 +28,6 @@ class ScooterRepository(private val scooterDao: ScooterDao) {
     suspend fun delete(scooter: Scooter) {
         scooterDao.delete(scooter)
     }
-    
+
 
 }

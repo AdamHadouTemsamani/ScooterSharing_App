@@ -107,6 +107,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             isZoomGesturesEnabled = true
         }
 
+
+
         val itu = LatLng(55.6596, 12.5910)
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(itu, 18f))
         Log.i(TAG,"About to print scooter name")

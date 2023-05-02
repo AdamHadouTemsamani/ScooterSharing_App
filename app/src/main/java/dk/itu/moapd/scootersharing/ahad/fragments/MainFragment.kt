@@ -197,6 +197,15 @@ class MainFragment : Fragment() {
                     .commit()
             }
 
+            seeBalanceButton.setOnClickListener {
+                val fragment = BalanceFragment()
+                requireActivity().supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.fragment_container_view,fragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
+
             findScooterButton.setOnClickListener {
                 val fragment = MapsFragment()
                 requireActivity().supportFragmentManager
