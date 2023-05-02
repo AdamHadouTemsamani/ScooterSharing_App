@@ -125,6 +125,7 @@ class StartRideFragment : Fragment() {
                     val args = Bundle()
                     args.putString("currentLat",currentLocation!!.latitude.toString())
                     args.putString("currentLong",currentLocation!!.longitude.toString())
+                    fragment.arguments = args
                     requireActivity().supportFragmentManager
                         .beginTransaction()
                         .replace(R.id.fragment_container_view,fragment)

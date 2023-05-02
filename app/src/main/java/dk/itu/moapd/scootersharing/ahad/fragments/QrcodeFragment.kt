@@ -74,8 +74,9 @@ class QrcodeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        currentLat = arguments?.getString("currentLat")?.toDouble()
-        currentLong = arguments?.getString("currentLong")?.toDouble()
+
+        currentLat = requireArguments().getString("currentLat")!!.toDouble()
+        currentLong = requireArguments().getString("currentLong")!!.toDouble()
         Log.i(TAG,"Current Lat: " + currentLat + " Current Long: " + currentLong  )
 
         val scannerView = view.findViewById<CodeScannerView>(R.id.scanner_view)
@@ -108,11 +109,11 @@ class QrcodeFragment : Fragment() {
 
                             }
                             .setPositiveButton("Accept") { dialog, which ->
-                                Log.i(TAG,"I am gonna print something!")
                                 val lat =  currentLat
                                 val long = currentLong
-                                Log.i(TAG,"lat " + currentLat + "long" + currentLong)
-
+                                if (long != null && lat != null) {
+                                    addScooterAndExitCamera(lat,long)
+                                }
                             }
                             .show()
                     }
