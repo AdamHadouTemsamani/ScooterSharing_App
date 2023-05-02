@@ -58,7 +58,7 @@ abstract class ScooterDatabase : RoomDatabase() {
             "CPH02",
             "Rued Langgaards Vej 7, 2300 København",
             date, date,
-            12.587997648, 55.65583071, 12.587997648, 55.65583071,
+            12.5910, 55.6596, 12.5910, 55.6596,
             false, "CPH02.jpg"
         )
 

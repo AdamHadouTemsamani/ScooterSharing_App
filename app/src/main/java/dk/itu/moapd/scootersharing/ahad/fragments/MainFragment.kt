@@ -187,6 +187,7 @@ class MainFragment : Fragment() {
 
 
         with(binding) {
+            /*
             startRideButton.setOnClickListener {
                 val fragment = StartRideFragment()
                 requireActivity().supportFragmentManager
@@ -203,6 +204,7 @@ class MainFragment : Fragment() {
                     .addToBackStack(null)
                     .commit()
             }
+            */
 
             seeBalanceButton.setOnClickListener {
                 val fragment = BalanceFragment()
@@ -223,6 +225,7 @@ class MainFragment : Fragment() {
             }
             Log.i(TAG, "3 Current size of Scooter" + adapter.currentList.size)
 
+            /*
             showRidesButton.setOnClickListener {
                 for (ride in adapter.currentList) {
                     setAddress(ride.currentLat, ride.currentLong)
@@ -241,6 +244,16 @@ class MainFragment : Fragment() {
                 }
 
             }
+            *(
+             */
+            for (ride in adapter.currentList) {
+                setAddress(ride.currentLat, ride.currentLong)
+            }
+            binding.listRides.layoutManager = LinearLayoutManager(activity)
+            binding.listRides.addItemDecoration(
+                DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
+            )
+            binding.listRides.adapter = adapter
 
             historyRideButton.setOnClickListener {
                 val fragment = HistoryRideFragment()
