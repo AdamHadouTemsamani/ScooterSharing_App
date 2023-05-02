@@ -78,6 +78,7 @@ class MainFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var storage: FirebaseStorage
 
+
     private val scooterViewModel: ScooterViewModel by viewModels {
         ScooterViewModelFactory((requireActivity().application as ScooterApplication).scooterRepository)
     }
@@ -115,11 +116,13 @@ class MainFragment : Fragment() {
         storage = Firebase.storage("gs://moapd-2023-cc929.appspot.com")
 
         broadcastReceiver = MyReceiver()
-        if(checkPermission()) requestUserPermissions()
+        if (checkPermission()) requestUserPermissions()
 
-        context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
-            broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
-        ) }
+        context?.let {
+            LocalBroadcastManager.getInstance(it).registerReceiver(
+                broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+            )
+        }
 
         if (auth.currentUser == null) {
             val intent = Intent(activity, LoginActivity::class.java)
@@ -138,17 +141,11 @@ class MainFragment : Fragment() {
         binding.listRides.layoutManager = LinearLayoutManager(activity)
         // Collecting data from the dataset.
         adapter = CustomAdapter()
-        Log.i(TAG,"Current size of Scooter" + adapter.currentList.size)
+        Log.i(TAG, "Current size of Scooter" + adapter.currentList.size)
 
         previousRidesAdapter = HistoryRideAdapter()
 
-        scooterViewModel.scooters.observe(viewLifecycleOwner) { scooters ->
-            scooters?.let {
-                adapter.submitList(it)
 
-            }
-        }
-        Log.i(TAG,"2 Current size of Scooter" + adapter.currentList.size)
 
         historyViewModel.previousRides.observe(viewLifecycleOwner) { previousRides ->
             previousRides?.let {
@@ -156,7 +153,7 @@ class MainFragment : Fragment() {
             }
         }
 
-        Log.i(TAG,"7 Current size of Scooter" + adapter.currentList.size)
+        Log.i(TAG, "7 Current size of Scooter" + adapter.currentList.size)
 
 
         context?.bindService(
@@ -164,10 +161,14 @@ class MainFragment : Fragment() {
             Context.BIND_AUTO_CREATE
         )
 
-        context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
-            broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
-        ) }
+        context?.let {
+            LocalBroadcastManager.getInstance(it).registerReceiver(
+                broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+            )
+        }
         mService?.requestLocationUpdates();
+
+
 
 
 
@@ -177,14 +178,20 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.i(TAG,"8 Current size of Scooter" + adapter.currentList.size)
+        Log.i(TAG, "8 Current size of Scooter" + adapter.currentList.size)
 
-        with (binding) {
+
+        scooterViewModel.scooters.observe(viewLifecycleOwner) {
+            adapter.submitList(it)
+        }
+
+
+        with(binding) {
             startRideButton.setOnClickListener {
                 val fragment = StartRideFragment()
                 requireActivity().supportFragmentManager
                     .beginTransaction()
-                    .replace(R.id.fragment_container_view,fragment)
+                    .replace(R.id.fragment_container_view, fragment)
                     .addToBackStack(null)
                     .commit()
             }
@@ -192,7 +199,7 @@ class MainFragment : Fragment() {
                 val fragment = UpdateRideFragment()
                 requireActivity().supportFragmentManager
                     .beginTransaction()
-                    .replace(R.id.fragment_container_view,fragment)
+                    .replace(R.id.fragment_container_view, fragment)
                     .addToBackStack(null)
                     .commit()
             }
@@ -201,7 +208,7 @@ class MainFragment : Fragment() {
                 val fragment = BalanceFragment()
                 requireActivity().supportFragmentManager
                     .beginTransaction()
-                    .replace(R.id.fragment_container_view,fragment)
+                    .replace(R.id.fragment_container_view, fragment)
                     .addToBackStack(null)
                     .commit()
             }
@@ -210,30 +217,28 @@ class MainFragment : Fragment() {
                 val fragment = MapsFragment()
                 requireActivity().supportFragmentManager
                     .beginTransaction()
-                    .replace(R.id.fragment_container_view,fragment)
+                    .replace(R.id.fragment_container_view, fragment)
                     .addToBackStack(null)
                     .commit()
             }
-            Log.i(TAG,"3 Current size of Scooter" + adapter.currentList.size)
+            Log.i(TAG, "3 Current size of Scooter" + adapter.currentList.size)
 
             showRidesButton.setOnClickListener {
                 for (ride in adapter.currentList) {
-                    setAddress(ride.currentLat,ride.currentLong)
+                    setAddress(ride.currentLat, ride.currentLong)
                 }
                 // Create the custom adapter to populate a list of rides.
-                Log.i(TAG,"4 Current size of Scooter" + adapter.currentList.size)
+                Log.i(TAG, "4 Current size of Scooter" + adapter.currentList.size)
                 binding.listRides.layoutManager = LinearLayoutManager(activity)
                 binding.listRides.addItemDecoration(
-                    DividerItemDecoration(activity,DividerItemDecoration.VERTICAL)
+                    DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
                 )
                 binding.listRides.adapter = adapter
-                Log.i(TAG,"5 Current size of Scooter" + adapter.currentList.size)
-                listRides.visibility = if (listRides.visibility == View.VISIBLE){
+                listRides.visibility = if (listRides.visibility == View.VISIBLE) {
                     View.INVISIBLE
-                } else{
+                } else {
                     View.VISIBLE
                 }
-                Log.i(TAG,"Scooter id: " + adapter.currentList[0].id)
 
             }
 
@@ -241,7 +246,7 @@ class MainFragment : Fragment() {
                 val fragment = HistoryRideFragment()
                 requireActivity().supportFragmentManager
                     .beginTransaction()
-                    .replace(R.id.fragment_container_view,fragment)
+                    .replace(R.id.fragment_container_view, fragment)
                     .addToBackStack(null)
                     .commit()
             }
@@ -266,11 +271,11 @@ class MainFragment : Fragment() {
                     }
                     dialog.setPositiveButton("Accept") { dialog, which ->
                         val scooter = adapter.currentList[position]
-                        Log.i(TAG,"Scooter URL" + scooter.URL)
+                        Log.i(TAG, "Scooter URL" + scooter.URL)
                         scooter.endTime = Calendar.getInstance().time.minutes.toLong()
                         val diffTime = abs(scooter.startTime - scooter.endTime)
                         val previousRide = History(
-                            0,scooter.name,
+                            0, scooter.name,
                             scooter.location,
                             diffTime,
                             scooter.startLong,
@@ -278,18 +283,19 @@ class MainFragment : Fragment() {
                             scooter.currentLong,
                             scooter.currentLat,
                             (diffTime * 2).toInt(),
-                            scooter.URL) //This needs to be auto incremented
+                            scooter.URL
+                        ) //This needs to be auto incremented
                         scooterViewModel.delete(scooter)
                         historyViewModel.insert(previousRide)
                         previousRidesAdapter.notifyItemChanged(position)
 
                         val fragment = CameraFragment()
                         val args = Bundle()
-                        args.putString("Scooter",scooter.name)
+                        args.putString("Scooter", scooter.name)
                         fragment.arguments = args
                         requireActivity().supportFragmentManager
                             .beginTransaction()
-                            .replace(R.id.fragment_container_view,fragment)
+                            .replace(R.id.fragment_container_view, fragment)
                             .addToBackStack(null)
                             .commit()
                         scooter.URL = scooter.name + ".jpg"
@@ -299,25 +305,27 @@ class MainFragment : Fragment() {
             }
             val itemTouchHelper = ItemTouchHelper(swipeHandler)
             itemTouchHelper.attachToRecyclerView(binding.listRides)
-            }
-        Log.i(TAG,"9 Current size of Scooter" + adapter.currentList.size)
+        }
+        Log.i(TAG, "9 Current size of Scooter" + adapter.currentList.size)
     }
 
     override fun onResume() {
         super.onResume()
-        Log.i(TAG,"I am resummeignng")
-        context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
-            broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+        Log.i(TAG, "I am resummeignng")
+        context?.let {
+            LocalBroadcastManager.getInstance(it).registerReceiver(
+                broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
 
-        ) }
+            )
+        }
 
-        Log.i(TAG,"I am resummeignng 2")
-        context?.startService(Intent(context,MyLocationUpdateService::class.java))
+        Log.i(TAG, "I am resummeignng 2")
+        context?.startService(Intent(context, MyLocationUpdateService::class.java))
         //subscribeToLocationUpdates()
     }
 
     override fun onPause() {
-        Log.i(TAG,"I am peeeeeingg")
+        Log.i(TAG, "I am peeeeeingg")
         super.onPause()
         context?.let { LocalBroadcastManager.getInstance(it).unregisterReceiver(broadcastReceiver) }
         //unsubscribeToLocationUpdates()
@@ -330,7 +338,7 @@ class MainFragment : Fragment() {
             context?.unbindService(mServiceConnection)
             mBound = false
         }
-        context?.stopService(Intent(context,MyLocationUpdateService::class.java))
+        context?.stopService(Intent(context, MyLocationUpdateService::class.java))
 
         _binding = null
 
@@ -368,7 +376,12 @@ class MainFragment : Fragment() {
     private fun permissionsToRequest(permissions: ArrayList<String>): ArrayList<String> {
         val result: ArrayList<String> = ArrayList()
         for (permission in permissions)
-            if (context?.let { PermissionChecker.checkSelfPermission(it, permission) } != PackageManager.PERMISSION_GRANTED)
+            if (context?.let {
+                    PermissionChecker.checkSelfPermission(
+                        it,
+                        permission
+                    )
+                } != PackageManager.PERMISSION_GRANTED)
                 result.add(permission)
 
         return result
@@ -394,7 +407,8 @@ class MainFragment : Fragment() {
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
 
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            val binder: MyLocationUpdateService.LocalBinder = service as MyLocationUpdateService.LocalBinder
+            val binder: MyLocationUpdateService.LocalBinder =
+                service as MyLocationUpdateService.LocalBinder
             mService = binder.getService()
             mBound = true
         }
@@ -405,7 +419,7 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun Address.toAddressString() : String {
+    private fun Address.toAddressString(): String {
         val address = this
         val stringBuilder = StringBuilder()
         stringBuilder.apply {
@@ -417,8 +431,8 @@ class MainFragment : Fragment() {
     private fun setAddress(latitude: Double, longitude: Double) {
         val geocoder = context?.let { Geocoder(it, Locale.getDefault()) }
         val geocodeListener = Geocoder.GeocodeListener { addresses ->
-            addresses.firstOrNull()?.toAddressString()?.let {address ->
-                for(ride in adapter.currentList) {
+            addresses.firstOrNull()?.toAddressString()?.let { address ->
+                for (ride in adapter.currentList) {
                     ride.location = address
                 }
             }
@@ -429,14 +443,12 @@ class MainFragment : Fragment() {
         else
             geocoder?.getFromLocation(latitude, longitude, 1)?.let { addresses ->
                 addresses.firstOrNull()?.toAddressString()?.let { address ->
-                    for(ride in adapter.currentList) {
+                    for (ride in adapter.currentList) {
                         ride.location = address
                     }
                 }
             }
     }
-
-
 
 
 }

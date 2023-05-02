@@ -86,9 +86,18 @@ class StartRideFragment : Fragment() {
         broadcastReceiver = MyReceiver()
         if(checkPermission()) requestUserPermissions()
 
+        mService?.requestLocationUpdates();
+
+        context?.bindService(
+            Intent(context, MyLocationUpdateService::class.java), mServiceConnection,
+            Context.BIND_AUTO_CREATE
+        )
+
         context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
             broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
         ) }
+
+        context?.startService(Intent(context, MyLocationUpdateService::class.java))
     }
 
     override fun onCreateView(
@@ -136,24 +145,7 @@ class StartRideFragment : Fragment() {
                 }
             }
         }
-        context?.startService(Intent(context, MyLocationUpdateService::class.java))
     }
-
-    override fun onStart() {
-        super.onStart()
-        if(checkPermission()) requestUserPermissions()
-        mService?.requestLocationUpdates();
-
-        context?.bindService(
-            Intent(context, MyLocationUpdateService::class.java), mServiceConnection,
-            Context.BIND_AUTO_CREATE
-        )
-
-        context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
-            broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
-        ) }
-    }
-
 
     override fun onResume() {
         super.onResume()
