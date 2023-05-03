@@ -3,10 +3,7 @@ package dk.itu.moapd.scootersharing.ahad.fragments
 import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
-import android.location.Address
-import android.location.Geocoder
 import android.location.Location
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -21,14 +18,13 @@ import androidx.fragment.app.viewModels
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import dk.itu.moapd.scootersharing.ahad.MyLocationUpdateService
+import dk.itu.moapd.scootersharing.ahad.LocationService
 import dk.itu.moapd.scootersharing.ahad.R
 import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentStartRideBinding
 import dk.itu.moapd.scootersharing.ahad.model.Scooter
 import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModel
 import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModelFactory
-import dk.itu.moapd.scootersharing.ahad.utils.UserPermissions
 import java.util.*
 
 class StartRideFragment : Fragment() {
@@ -50,7 +46,7 @@ class StartRideFragment : Fragment() {
     //Used for location-aware service
     private var currentLocation: Location? = null
     // A reference to the service used to get location updates
-    private var mService: MyLocationUpdateService? = null
+    private var mService: LocationService? = null
     // Tracks the bound state of the service.
     private var mBound = false
     // BroadcastReceiver that gets data from service
@@ -89,15 +85,15 @@ class StartRideFragment : Fragment() {
         mService?.requestLocationUpdates();
 
         context?.bindService(
-            Intent(context, MyLocationUpdateService::class.java), mServiceConnection,
+            Intent(context, LocationService::class.java), mServiceConnection,
             Context.BIND_AUTO_CREATE
         )
 
         context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
-            broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+            broadcastReceiver, IntentFilter(LocationService.ACTION_BROADCAST)
         ) }
 
-        context?.startService(Intent(context, MyLocationUpdateService::class.java))
+        context?.startService(Intent(context, LocationService::class.java))
     }
 
     override fun onCreateView(
@@ -127,30 +123,14 @@ class StartRideFragment : Fragment() {
                     .show()
             }
 
-            scanScooterButton.setOnClickListener {
-                if(!isLocationNull()) {
-                    Log.i(TAG, "I am sending the following data: " +currentLocation?.latitude.toString())
-                    val fragment = QrcodeFragment()
-                    val args = Bundle()
-                    args.putString("currentLat",currentLocation!!.latitude.toString())
-                    args.putString("currentLong",currentLocation!!.longitude.toString())
-                    fragment.arguments = args
-                    requireActivity().supportFragmentManager
-                        .beginTransaction()
-                        .replace(R.id.fragment_container_view,fragment)
-                        .addToBackStack(null)
-                        .commit()
-                } else {
-                    showMessage("Your location is currently null. Please exit back to the main menu and try again!")
-                }
-            }
+
         }
     }
 
     override fun onResume() {
         super.onResume()
         context?.let { LocalBroadcastManager.getInstance(it).registerReceiver(
-            broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+            broadcastReceiver, IntentFilter(LocationService.ACTION_BROADCAST)
         ) }
 
         if(currentLocation != null) {
@@ -168,7 +148,7 @@ class StartRideFragment : Fragment() {
             context?.unbindService(mServiceConnection)
             mBound = false
         }
-        context?.stopService(Intent(context,MyLocationUpdateService::class.java))
+        context?.stopService(Intent(context,LocationService::class.java))
     }
     /**
      * Displays the Scooter information using a Snackbar
@@ -265,7 +245,7 @@ class StartRideFragment : Fragment() {
     private inner class MyReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             val location: Location? =
-                intent.extras?.getParcelable(MyLocationUpdateService.EXTRA_LOCATION)
+                intent.extras?.getParcelable(LocationService.EXTRA_LOCATION)
             if (location != null) {
                 Log.i(TAG,location.latitude.toString())
                 Log.i(TAG,location.longitude.toString())
@@ -280,7 +260,7 @@ class StartRideFragment : Fragment() {
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
 
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            val binder: MyLocationUpdateService.LocalBinder = service as MyLocationUpdateService.LocalBinder
+            val binder: LocationService.LocalBinder = service as LocationService.LocalBinder
             mService = binder.getService()
             mBound = true
             Log.i(TAG,"Yes work, service yes yes")

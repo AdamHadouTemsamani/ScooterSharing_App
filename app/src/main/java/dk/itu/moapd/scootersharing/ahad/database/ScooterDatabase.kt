@@ -44,7 +44,7 @@ abstract class ScooterDatabase : RoomDatabase() {
 
         val date = Calendar.getInstance().time.minutes.toLong()
         val CPH01 = Scooter(
-            0,
+            1,
             "CPH01",
             "Nørre Voldgade 80A, 1358 København",
             date, date,
@@ -54,7 +54,7 @@ abstract class ScooterDatabase : RoomDatabase() {
 
 
         val CPH02 = Scooter(
-            0,
+            2,
             "CPH02",
             "Rued Langgaards Vej 7, 2300 København",
             date, date,
@@ -63,7 +63,7 @@ abstract class ScooterDatabase : RoomDatabase() {
         )
 
         val CPH03 = Scooter(
-            0,
+            3,
             "CPH03",
             "Torvegade 47, 1400 København",
             date, date,

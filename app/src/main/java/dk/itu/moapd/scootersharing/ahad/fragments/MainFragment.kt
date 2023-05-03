@@ -15,7 +15,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
-import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -28,14 +27,13 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
-import dk.itu.moapd.scootersharing.ahad.MyLocationUpdateService
+import dk.itu.moapd.scootersharing.ahad.LocationService
 import dk.itu.moapd.scootersharing.ahad.R
 import dk.itu.moapd.scootersharing.ahad.activities.*
 import dk.itu.moapd.scootersharing.ahad.utils.SwipeToDeleteCallback
 import dk.itu.moapd.scootersharing.ahad.adapters.CustomAdapter
 import dk.itu.moapd.scootersharing.ahad.adapters.HistoryRideAdapter
 import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
-import dk.itu.moapd.scootersharing.ahad.application.TAG
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentMainBinding
 import dk.itu.moapd.scootersharing.ahad.model.*
 import java.lang.Math.abs
@@ -54,7 +52,7 @@ class MainFragment : Fragment() {
     }
 
     // A reference to the service used to get location updates.
-    private var mService: MyLocationUpdateService? = null
+    private var mService: LocationService? = null
 
     // Tracks the bound state of the service.
     private var mBound = false
@@ -120,7 +118,7 @@ class MainFragment : Fragment() {
 
         context?.let {
             LocalBroadcastManager.getInstance(it).registerReceiver(
-                broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+                broadcastReceiver, IntentFilter(LocationService.ACTION_BROADCAST)
             )
         }
 
@@ -157,13 +155,13 @@ class MainFragment : Fragment() {
 
 
         context?.bindService(
-            Intent(context, MyLocationUpdateService::class.java), mServiceConnection,
+            Intent(context, LocationService::class.java), mServiceConnection,
             Context.BIND_AUTO_CREATE
         )
 
         context?.let {
             LocalBroadcastManager.getInstance(it).registerReceiver(
-                broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+                broadcastReceiver, IntentFilter(LocationService.ACTION_BROADCAST)
             )
         }
         mService?.requestLocationUpdates();
@@ -187,25 +185,7 @@ class MainFragment : Fragment() {
 
 
         with(binding) {
-            /*
-            startRideButton.setOnClickListener {
-                val fragment = StartRideFragment()
-                requireActivity().supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.fragment_container_view, fragment)
-                    .addToBackStack(null)
-                    .commit()
-            }
-            updateRideButton.setOnClickListener {
-                val fragment = UpdateRideFragment()
-                requireActivity().supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.fragment_container_view, fragment)
-                    .addToBackStack(null)
-                    .commit()
-            }
-            */
-
+            
             seeBalanceButton.setOnClickListener {
                 val fragment = BalanceFragment()
                 requireActivity().supportFragmentManager
@@ -327,13 +307,13 @@ class MainFragment : Fragment() {
         Log.i(TAG, "I am resummeignng")
         context?.let {
             LocalBroadcastManager.getInstance(it).registerReceiver(
-                broadcastReceiver, IntentFilter(MyLocationUpdateService.ACTION_BROADCAST)
+                broadcastReceiver, IntentFilter(LocationService.ACTION_BROADCAST)
 
             )
         }
 
         Log.i(TAG, "I am resummeignng 2")
-        context?.startService(Intent(context, MyLocationUpdateService::class.java))
+        context?.startService(Intent(context, LocationService::class.java))
         //subscribeToLocationUpdates()
     }
 
@@ -351,7 +331,7 @@ class MainFragment : Fragment() {
             context?.unbindService(mServiceConnection)
             mBound = false
         }
-        context?.stopService(Intent(context, MyLocationUpdateService::class.java))
+        context?.stopService(Intent(context, LocationService::class.java))
 
         _binding = null
 
@@ -404,7 +384,7 @@ class MainFragment : Fragment() {
     private inner class MyReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             val location: Location? =
-                intent.extras?.getParcelable(MyLocationUpdateService.EXTRA_LOCATION)
+                intent.extras?.getParcelable(LocationService.EXTRA_LOCATION)
             if (location != null) {
                 for (ride in adapter.currentList) {
                     ride.currentLong = location.longitude
@@ -420,8 +400,8 @@ class MainFragment : Fragment() {
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
 
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            val binder: MyLocationUpdateService.LocalBinder =
-                service as MyLocationUpdateService.LocalBinder
+            val binder: LocationService.LocalBinder =
+                service as LocationService.LocalBinder
             mService = binder.getService()
             mBound = true
         }

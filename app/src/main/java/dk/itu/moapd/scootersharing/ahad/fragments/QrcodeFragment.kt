@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.budiyev.android.codescanner.AutoFocusMode
 import com.budiyev.android.codescanner.CodeScanner
@@ -47,9 +48,7 @@ class QrcodeFragment : Fragment() {
         }
 
 
-    private val scooterViewModel: ScooterViewModel by viewModels {
-        ScooterViewModelFactory((requireActivity().application as ScooterApplication).scooterRepository)
-    }
+    private val scooterViewModel: ScooterViewModel by activityViewModels()
 
     private lateinit var codeScanner: CodeScanner
 
@@ -109,11 +108,7 @@ class QrcodeFragment : Fragment() {
 
                             }
                             .setPositiveButton("Accept") { dialog, which ->
-                                val lat =  currentLat
-                                val long = currentLong
-                                if (long != null && lat != null) {
-                                    addScooterAndExitCamera(lat,long)
-                                }
+                                    addScooterAndExitCamera(currentLat!!, currentLong!!)
                             }
                             .show()
                     }
@@ -180,43 +175,25 @@ class QrcodeFragment : Fragment() {
         return result
     }
     private fun addScooterAndExitCamera(currentLat: Double, currentLong: Double) {
-            Log.i(TAG,"It enters the function")
-            if(currentLat == null && currentLong == null) {
-                Log.i(TAG,"Your location is null :(")
-            showMessage("Your location is currently null. Please go back to Main Screen and try again!")
-            return
+        Log.i(TAG,"Scooter is supposed to be updated and ${scooterName}")
+        scooterViewModel.scooters.observe(viewLifecycleOwner) {
+            for(ride in it) {
+
+                if(ride.name!!.equals(scooterName)) {
+                    val id = scooterName?.get(4)?.toInt()
+                    val date = Calendar.getInstance().time.minutes.toLong()
+                    val scooter = id?.let { Scooter(it, scooterName,"Unknown",date,date,currentLong,currentLat,currentLong,currentLat,true) }
+                    scooterViewModel.delete(ride)
+                    if (scooter != null) {
+                        scooterViewModel.insert(scooter)
+                    }
+                }
+            }
         }
-        val name = scooterName
-        val location = "Something went wrong?"
-        val date = Calendar.getInstance().time.minutes.toLong()
-        val scooter = Scooter(0,name,location,date,date,
-            currentLong,
-            currentLat,
-            currentLong,
-            currentLat,
-            true)
-        scooter.URL = name + ".jpg"
-        Log.i(TAG,"I am about to add this scooter the database")
-        scooterViewModel.insert(scooter)
-
-        showMessage("Your scooter ride has been started. Enjoy!")
-
         requireActivity().supportFragmentManager
             .popBackStack()
         requireActivity().supportFragmentManager
             .popBackStack()
     }
-
-
-    private fun showMessage(message: String) {
-        //Snackbar :D
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
-    }
-
-
-
-
-
-
 
 }

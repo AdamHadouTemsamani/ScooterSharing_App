@@ -13,7 +13,8 @@ import java.util.*
  */
 @Entity(tableName = "scooter")
 data class Scooter (
-    @PrimaryKey(autoGenerate = true) val id: Int,
+
+    @PrimaryKey @ColumnInfo(name = "id") val id: Int,
     @ColumnInfo(name = "name") val name: String?,
     @ColumnInfo(name = "location") var location: String?,
     @ColumnInfo(name = "startTime") var startTime: Long,
@@ -22,7 +23,7 @@ data class Scooter (
     @ColumnInfo(name = "startLat") var startLat: Double,
     @ColumnInfo(name = "endLong") var currentLong: Double,
     @ColumnInfo(name = "endLat") var currentLat: Double,
-    @ColumnInfo(name = "isRide") var isRide: Boolean,
+    @ColumnInfo(name = "isRide") var isRide: Boolean = false,
     @ColumnInfo(name = "URL") var URL: String = "CPH01"
 ){
 

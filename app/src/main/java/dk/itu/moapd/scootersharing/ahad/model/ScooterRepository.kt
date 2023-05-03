@@ -25,6 +25,16 @@ class ScooterRepository(private val scooterDao: ScooterDao) {
     }
 
     @WorkerThread
+    suspend fun deleteById(id: Int) {
+        scooterDao.deleteById(id)
+    }
+
+    @WorkerThread
+    suspend fun updateById(id: Int, isRide: Boolean) {
+        scooterDao.updateById(id,isRide)
+    }
+
+    @WorkerThread
     suspend fun delete(scooter: Scooter) {
         scooterDao.delete(scooter)
     }

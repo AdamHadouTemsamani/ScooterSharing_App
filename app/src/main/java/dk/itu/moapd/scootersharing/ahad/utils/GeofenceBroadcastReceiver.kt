@@ -12,46 +12,33 @@ import dk.itu.moapd.scootersharing.ahad.fragments.MapsFragment
 import dk.itu.moapd.scootersharing.ahad.utils.NotificationHelper
 
 
-class GeofenceBroadcastReceiver(view: View) : BroadcastReceiver() {
+class GeofenceBroadcastReceiver(context: Context?) : BroadcastReceiver() {
 
     companion object {
-        private const val TAG = "GeofenceBroadcastReceiver"
+        private val TAG = GeofenceBroadcastReceiver::class.java.simpleName
     }
 
+    private lateinit var key: String
+    private lateinit var message: String
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.i(TAG,"biggest bruh moment in the entire existence")
-
         val geofencingEvent = GeofencingEvent.fromIntent(intent!!)
-        if (geofencingEvent!!.hasError()) {
-            Log.i(TAG, "onReceive: Error receiving geofence event... please help...")
-            return
-        }
-        val geofenceList = geofencingEvent.triggeringGeofences
-        for (geofence in geofenceList!!) {
-            Log.i(TAG, "onReceive: " + geofence.requestId)
-        }
+        val geofencingTransition = geofencingEvent?.geofenceTransition
 
-        val location = geofencingEvent.getTriggeringLocation();
-        val transitionType = geofencingEvent.geofenceTransition
-        when (transitionType) {
-            Geofence.GEOFENCE_TRANSITION_ENTER -> {
-                Toast.makeText(context, "GEOFENCE_TRANSITION_ENTER", Toast.LENGTH_SHORT).show()
-                    Log.i(TAG,"I have entered the geofence")
+        if(geofencingTransition == Geofence.GEOFENCE_TRANSITION_EXIT ||
+            geofencingTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
+            geofencingTransition == Geofence.GEOFENCE_TRANSITION_DWELL) {
+            if (intent != null) {
+                key = intent.getStringExtra("key")!!
+                message = intent.getStringExtra("message")!!
+                Toast.makeText(context,message,Toast.LENGTH_SHORT).show()
             }
-            Geofence.GEOFENCE_TRANSITION_DWELL -> {
-                Toast.makeText(context, "GEOFENCE_TRANSITION_DWELL", Toast.LENGTH_SHORT).show()
-            }
-            Geofence.GEOFENCE_TRANSITION_EXIT -> {
-                Toast.makeText(context, "GEOFENCE_TRANSITION_EXIT", Toast.LENGTH_SHORT).show()
-                Log.i(TAG, "I have exited the geofence")
-            }
+            Log.i(TAG,"You have done something with the app so very nice!")
         }
     }
 
 
     private fun showMessage(view: View, message: String) {
-        //Snackbar :D
         Snackbar.make(view, message, Snackbar.LENGTH_LONG).show()
     }
 

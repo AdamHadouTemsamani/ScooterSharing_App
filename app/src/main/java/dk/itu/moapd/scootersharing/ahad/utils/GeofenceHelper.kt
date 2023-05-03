@@ -12,18 +12,21 @@ import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.maps.model.LatLng
 
-class GeofenceHelper(base: Context?) : ContextWrapper(base) {
+class GeofenceHelper(context: Context) : ContextWrapper(context) {
 
-    private var pendingIntent: PendingIntent? = null
+    companion object {
+        private val TAG = GeofenceHelper::class.java.simpleName
+    }
 
-    fun getGeofencingRequest(geofence: Geofence?): GeofencingRequest {
+    fun getGeofencingRequest(geofences: List<Geofence?>): GeofencingRequest {
         return GeofencingRequest.Builder()
-            .addGeofence(geofence!!)
+            .addGeofences(geofences)
             .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
             .build()
     }
 
-    fun getGeofence(ID: String?, latLng: LatLng, radius: Float, transitionTypes: Int): Geofence {
+
+    fun buildGeofence(ID: String?, latLng: LatLng, radius: Float, transitionTypes: Int): Geofence {
         return Geofence.Builder()
             .setCircularRegion(latLng.latitude, latLng.longitude, radius)
             .setRequestId(ID!!)
@@ -33,14 +36,14 @@ class GeofenceHelper(base: Context?) : ContextWrapper(base) {
             .build()
     }
 
-    fun getPendingIntent(): PendingIntent? {
-        if (pendingIntent != null) {
-            return pendingIntent
-        }
-        val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
-        pendingIntent = PendingIntent.getBroadcast(this, 2607, intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        return pendingIntent
+    val geofencePendingIntent: PendingIntent by lazy {
+        val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
+        PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
     fun getErrorString(e: Exception): String {
@@ -54,7 +57,5 @@ class GeofenceHelper(base: Context?) : ContextWrapper(base) {
         return e.localizedMessage
     }
 
-    companion object {
-        private const val TAG = "GeofenceHelper"
-    }
+
 }
