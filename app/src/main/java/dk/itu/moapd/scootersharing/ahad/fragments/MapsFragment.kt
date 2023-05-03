@@ -20,6 +20,8 @@ import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import com.firebase.ui.auth.data.model.User
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -29,14 +31,13 @@ import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import com.google.maps.android.SphericalUtil
 import dk.itu.moapd.scootersharing.ahad.LocationService
 import dk.itu.moapd.scootersharing.ahad.R
 import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentMapsBinding
-import dk.itu.moapd.scootersharing.ahad.model.Scooter
-import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModel
-import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModelFactory
+import dk.itu.moapd.scootersharing.ahad.model.*
 import dk.itu.moapd.scootersharing.ahad.utils.GeofenceHelper
 import dk.itu.moapd.scootersharing.ahad.utils.Geosphere
 
@@ -53,13 +54,15 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     //Used for location-aware service
     private var currentLocation: Location? = null
     private var mService: LocationService? = null
-        private var mBound = false
+    private var mBound = false
 
     // BroadcastReceiver that gets data from service
     private lateinit var broadcastReceiver: LocationBroadcastReceiver
 
     private var geofenceList: MutableList<Geosphere> = mutableListOf()
     private var scootersList: MutableList<Scooter> = mutableListOf()
+
+    private lateinit var auth: FirebaseAuth
 
     //Binding
     private var _binding: FragmentMapsBinding? = null
@@ -74,8 +77,13 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         ScooterViewModelFactory((requireActivity().application as ScooterApplication).scooterRepository)
     }
 
+    private val userBalanceViewModel: UserBalanceViewModel by activityViewModels() {
+        UserBalanceViewModelFactory((requireActivity().application as ScooterApplication).userRepository)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        auth = FirebaseAuth.getInstance()
 
         //Setup classes for location
         broadcastReceiver = LocationBroadcastReceiver()
@@ -193,40 +201,50 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 }
 
                 scanScooterButton.setOnClickListener {
-                    var isRideActive = false
-                    scooterViewModel.scooters.observe(viewLifecycleOwner) {
+                    userBalanceViewModel.users.observe(viewLifecycleOwner) {
+                        for (user in it) {
+                            Log.i(TAG,"Bruh current user is ${user.email}")
+                            if (user.email == auth.currentUser!!.email && user.isCard) {
+                                var isRideActive = false
+                                scooterViewModel.scooters.observe(viewLifecycleOwner) {
 
-                        for (ride in it) {
-                            if (ride.isRide) isRideActive = true
+                                    for (ride in it) {
+                                        if (ride.isRide) isRideActive = true
+                                    }
+                                    if (isRideActive) showMessage("You already have an active ride")
+                                }
+
+                                val ourLocation = LatLng(currentLocation!!.latitude,currentLocation!!.longitude)
+                                val closestScooter = findClosestScooter(ourLocation,scootersList)
+                                var geopshere: Geosphere? = null
+                                for (geo in geofenceList) {
+                                    if(closestScooter!!.name.equals(geo.name)) geopshere = geo
+                                }
+                                if(currentLocation != null && geopshere?.let { it1 ->
+                                        checkForGeofenceEntry(ourLocation,
+                                            it1
+                                        )
+                                    } == true && !isRideActive) {
+
+                                    Log.i(TAG, "I am sending the following data: " + currentLocation?.latitude.toString())
+                                    val fragment = QrcodeFragment()
+                                    val args = Bundle()
+                                    args.putString("currentLat",currentLocation!!.latitude.toString())
+                                    args.putString("currentLong",currentLocation!!.longitude.toString())
+                                    fragment.arguments = args
+                                    requireActivity().supportFragmentManager
+                                        .beginTransaction()
+                                        .replace(R.id.fragment_container_view,fragment)
+                                        .addToBackStack(null)
+                                        .commit()
+                                }
+                            } else {
+                                showMessage("You have removen your card. Please add a card. So you can pay for a scooter.")
+                            }
                         }
-                        if (isRideActive) showMessage("You already have an active ride")
+                        if (it.isEmpty()) showMessage("Please add a card. So you can pay for a scooter.")
                     }
 
-
-                    val ourLocation = LatLng(currentLocation!!.latitude,currentLocation!!.longitude)
-                    val closestScooter = findClosestScooter(ourLocation,scootersList)
-                    var geopshere: Geosphere? = null
-                        for (geo in geofenceList) {
-                            if(closestScooter!!.name.equals(geo.name)) geopshere = geo
-                        }
-                    if(currentLocation != null && geopshere?.let { it1 ->
-                            checkForGeofenceEntry(ourLocation,
-                                it1
-                            )
-                        } == true && !isRideActive) {
-
-                        Log.i(TAG, "I am sending the following data: " + currentLocation?.latitude.toString())
-                        val fragment = QrcodeFragment()
-                        val args = Bundle()
-                        args.putString("currentLat",currentLocation!!.latitude.toString())
-                        args.putString("currentLong",currentLocation!!.longitude.toString())
-                        fragment.arguments = args
-                        requireActivity().supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.fragment_container_view,fragment)
-                            .addToBackStack(null)
-                            .commit()
-                    }
                 }
 
 

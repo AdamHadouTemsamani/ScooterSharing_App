@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -52,13 +53,13 @@ class MainFragment : Fragment() {
         private const val ALL_PERMISSIONS_RESULT = 1011
     }
 
-    // A reference to the service used to get location updates.
+    //Used for location-aware service
+    private var currentLocation: Location? = null
     private var mService: LocationService? = null
-
-    // Tracks the bound state of the service.
     private var mBound = false
 
-    private lateinit var broadcastReceiver: MyReceiver
+    // BroadcastReceiver that gets data from service
+    private var broadcastReceiver = LocationBroadcastReceiver()
 
     /**
      * View binding is a feature that allows you to more easily write code that interacts with
@@ -84,6 +85,10 @@ class MainFragment : Fragment() {
 
     private val historyViewModel: HistoryViewModel by viewModels {
         HistoryViewModel.HistoryViewModelFactory((requireActivity().application as ScooterApplication).historyRepository)
+    }
+
+    private val userBalanceViewModel: UserBalanceViewModel by activityViewModels() {
+        UserBalanceViewModelFactory((requireActivity().application as ScooterApplication).userRepository)
     }
 
     /**
@@ -114,19 +119,21 @@ class MainFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         storage = Firebase.storage("gs://moapd-2023-cc929.appspot.com")
 
-        broadcastReceiver = MyReceiver()
-        if (checkPermission()) requestUserPermissions()
-
-        context?.let {
-            LocalBroadcastManager.getInstance(it).registerReceiver(
-                broadcastReceiver, IntentFilter(LocationService.ACTION_BROADCAST)
-            )
-        }
-
         if (auth.currentUser == null) {
             val intent = Intent(activity, LoginActivity::class.java)
             startActivity(intent)
         }
+
+
+        if (checkPermission()) requestUserPermissions()
+
+        broadcastReceiver = LocationBroadcastReceiver()
+
+        //Start requesting location and binding to service
+        // This also includes starting service
+        mService?.requestLocationUpdates();
+
+
     }
 
 
@@ -158,20 +165,9 @@ class MainFragment : Fragment() {
         Log.i(TAG, "7 Current size of Scooter" + adapter.currentList.size)
 
 
-        context?.bindService(
-            Intent(context, LocationService::class.java), mServiceConnection,
-            Context.BIND_AUTO_CREATE
-        )
-
-        context?.let {
-            LocalBroadcastManager.getInstance(it).registerReceiver(
-                broadcastReceiver, IntentFilter(LocationService.ACTION_BROADCAST)
-            )
+        Intent(requireContext(),LocationService::class.java).also {
+            requireActivity().bindService(it,mServiceConnection,Context.BIND_AUTO_CREATE)
         }
-        mService?.requestLocationUpdates();
-
-
-
 
 
         return binding.root
@@ -204,31 +200,9 @@ class MainFragment : Fragment() {
             }
             Log.i(TAG, "3 Current size of Scooter" + adapter.currentList.size)
 
-            /*
-            showRidesButton.setOnClickListener {
-                for (ride in adapter.currentList) {
-                    setAddress(ride.currentLat, ride.currentLong)
-                }
-                // Create the custom adapter to populate a list of rides.
-                Log.i(TAG, "4 Current size of Scooter" + adapter.currentList.size)
-                binding.listRides.layoutManager = LinearLayoutManager(activity)
-                binding.listRides.addItemDecoration(
-                    DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
-                )
-                binding.listRides.adapter = adapter
-                listRides.visibility = if (listRides.visibility == View.VISIBLE) {
-                    View.INVISIBLE
-                } else {
-                    View.VISIBLE
-                }
-
-            }
-            *(
-             */
-
-
-
             for (ride in adapter.currentList) {
+                ride.currentLat = currentLocation!!.latitude
+                ride.currentLong = currentLocation!!.longitude
                 setAddress(ride.currentLat, ride.currentLong)
             }
             binding.listRides.layoutManager = LinearLayoutManager(activity)
@@ -281,21 +255,32 @@ class MainFragment : Fragment() {
                             (diffTime * 2).toInt(),
                             scooter.URL
                         ) //This needs to be auto incremented
-                        scooterViewModel.update(scooter)
-                        historyViewModel.insert(previousRide)
-                        previousRidesAdapter.notifyItemChanged(position)
+                        val user = getCurrentUser()
+                        var userBalance = user!!.balance?.minus((diffTime * 2).toInt())
+                        if (userBalance != null) {
+                            if (userBalance < 0) {
+                                showMessage("Your account doesn't have enough balance. Please tank up.")
+                            } else {
+                                user.balance = user.balance?.minus((diffTime * 2).toInt())
+                                userBalanceViewModel.update(user)
+                                scooterViewModel.update(scooter)
+                                historyViewModel.insert(previousRide)
+                                previousRidesAdapter.notifyItemChanged(position)
 
-                        val fragment = CameraFragment()
-                        val args = Bundle()
-                        args.putString("Scooter", scooter.name)
-                        fragment.arguments = args
-                        requireActivity().supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.fragment_container_view, fragment)
-                            .addToBackStack(null)
-                            .commit()
-                        scooter.URL = scooter.name + ".jpg"
-                        Log.d("TAG", "Ride has been finished succesfully")
+                                val fragment = CameraFragment()
+                                val args = Bundle()
+                                args.putString("Scooter", scooter.name)
+                                fragment.arguments = args
+                                requireActivity().supportFragmentManager
+                                    .beginTransaction()
+                                    .replace(R.id.fragment_container_view, fragment)
+                                    .addToBackStack(null)
+                                    .commit()
+                                scooter.URL = scooter.name + ".jpg"
+                                Log.d("TAG", "Ride has been finished succesfully")
+                            }
+                        }
+
                     }.show()
                 }
             }
@@ -386,36 +371,61 @@ class MainFragment : Fragment() {
         return result
     }
 
-
-    private inner class MyReceiver : BroadcastReceiver() {
+    private inner class LocationBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             val location: Location? =
                 intent.extras?.getParcelable(LocationService.EXTRA_LOCATION)
             if (location != null) {
-                for (ride in adapter.currentList) {
-                    ride.currentLong = location.longitude
-                    ride.currentLat = location.latitude
-                }
+                Log.i(TAG,"Receiever lat: " + location.latitude.toString())
+                Log.i(TAG,"Receiever long: " + location.longitude.toString())
+                currentLocation = location
+                Log.i(TAG,"Location is being updated")
             }
+            if(location == null) Log.i(TAG,"There is no location dumbass")
         }
 
+
+
+
+
     }
-
-
     // Monitors the state of the connection to the service.
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
 
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            val binder: LocationService.LocalBinder =
-                service as LocationService.LocalBinder
+            val binder: LocationService.LocalBinder = service as LocationService.LocalBinder
             mService = binder.getService()
             mBound = true
+
+            mService?.subscribeToService { location ->
+                currentLocation = location
+            }
+
+            Log.i(TAG,"Yes work, service yes yes")
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
+            mService?.unsubscribeToService()
             mService = null
             mBound = false
+            Log.i(TAG,"no work, service no no")
         }
+    }
+
+    fun getCurrentUser() : UserBalance? {
+        var userBalance: UserBalance? = null
+        userBalanceViewModel.users.observe(viewLifecycleOwner) {
+            for(user in it) {
+                if(user.email == auth.currentUser!!.email) {
+                    userBalance = user
+                }
+            }
+        }
+        return userBalance
+    }
+
+    private fun showMessage(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
     private fun Address.toAddressString(): String {

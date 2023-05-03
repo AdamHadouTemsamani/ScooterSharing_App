@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
 import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentBalanceBinding
@@ -31,7 +32,9 @@ class CardFragment : Fragment() {
 
     private lateinit var auth: FirebaseAuth
 
-    private val userBalanceViewModel: UserBalanceViewModel by activityViewModels()
+    private val userBalanceViewModel: UserBalanceViewModel by activityViewModels() {
+        UserBalanceViewModelFactory((requireActivity().application as ScooterApplication).userRepository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
