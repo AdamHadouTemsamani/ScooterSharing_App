@@ -28,6 +28,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.SphericalUtil
 import dk.itu.moapd.scootersharing.ahad.LocationService
 import dk.itu.moapd.scootersharing.ahad.R
@@ -116,33 +117,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         }
 
 
-        with(binding) {
-            closestScooterButton.setOnClickListener {
-                val scooter = findClosestScooter(LatLng(currentLocation!!.latitude,currentLocation!!.longitude),scootersList)
-                Log.i(TAG,"Closest scooter is: " + scooter?.name)
-            }
-
-            scanScooterButton.setOnClickListener {
-                if(currentLocation != null) {
-                    Log.i(TAG, "I am sending the following data: " + currentLocation?.latitude.toString())
-                    val fragment = QrcodeFragment()
-                    val args = Bundle()
-                    args.putString("currentLat",currentLocation!!.latitude.toString())
-                    args.putString("currentLong",currentLocation!!.longitude.toString())
-                    fragment.arguments = args
-                    requireActivity().supportFragmentManager
-                        .beginTransaction()
-                        .replace(R.id.fragment_container_view,fragment)
-                        .addToBackStack(null)
-                        .commit()
-                }
-            }
-
-
-        }
-
-
-
     }
 
     @TargetApi(Build.VERSION_CODES.Q)
@@ -210,6 +184,55 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
 
             }
+
+            with(binding) {
+                closestScooterButton.setOnClickListener {
+                    val scooter = findClosestScooter(LatLng(currentLocation!!.latitude,currentLocation!!.longitude),scootersList)
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(scooter!!.currentLat,scooter!!.currentLong), 18f))
+                    Log.i(TAG,"Closest scooter is: " + scooter?.name)
+                }
+
+                scanScooterButton.setOnClickListener {
+                    var isRideActive = false
+                    scooterViewModel.scooters.observe(viewLifecycleOwner) {
+
+                        for (ride in it) {
+                            if (ride.isRide) isRideActive = true
+                        }
+                        if (isRideActive) showMessage("You already have an active ride")
+                    }
+
+
+                    val ourLocation = LatLng(currentLocation!!.latitude,currentLocation!!.longitude)
+                    val closestScooter = findClosestScooter(ourLocation,scootersList)
+                    var geopshere: Geosphere? = null
+                        for (geo in geofenceList) {
+                            if(closestScooter!!.name.equals(geo.name)) geopshere = geo
+                        }
+                    if(currentLocation != null && geopshere?.let { it1 ->
+                            checkForGeofenceEntry(ourLocation,
+                                it1
+                            )
+                        } == true && !isRideActive) {
+
+                        Log.i(TAG, "I am sending the following data: " + currentLocation?.latitude.toString())
+                        val fragment = QrcodeFragment()
+                        val args = Bundle()
+                        args.putString("currentLat",currentLocation!!.latitude.toString())
+                        args.putString("currentLong",currentLocation!!.longitude.toString())
+                        fragment.arguments = args
+                        requireActivity().supportFragmentManager
+                            .beginTransaction()
+                            .replace(R.id.fragment_container_view,fragment)
+                            .addToBackStack(null)
+                            .commit()
+                    }
+                }
+
+
+            }
+
+
         }
 
 
@@ -236,7 +259,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         googleMap.setPadding(0, 100, 0, 0)
     }
 
-    private fun checkForGeofenceEntry(userLocation: LatLng, geopshere: Geosphere) {
+    private fun checkForGeofenceEntry(userLocation: LatLng, geopshere: Geosphere) : Boolean {
         val startLatLng = LatLng(userLocation.latitude, userLocation.longitude) // User Location
         val geofenceLatLng = geopshere.latlng // Center of geofence
 
@@ -244,7 +267,9 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
         if (distanceInMeters < geopshere.radius) {
             Log.i(TAG,"You have entered the geosphere of ${geopshere.name} my brother!")
+            return true
         }
+        return false
     }
 
     private fun findClosestScooter(userLocation: LatLng, scooters: MutableList<Scooter>): Scooter? {
@@ -254,7 +279,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             val scooterDistance = SphericalUtil.computeDistanceBetween(userLocation,
                 LatLng(scooter.currentLat,scooter.currentLong)
             )
-            if(distance >= scooterDistance ) {
+            if(distance >= scooterDistance && !scooter.isRide ) {
                 distance = scooterDistance
                 closestScooter = scooter
             }
@@ -323,6 +348,10 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     )
                 } != PackageManager.PERMISSION_GRANTED
 
+    private fun showMessage(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+    }
+
 
     private inner class LocationBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
@@ -337,8 +366,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             if(location == null) Log.i(TAG,"There is no location dumbass")
         }
 
-    }
 
+
+
+
+    }
     // Monitors the state of the connection to the service.
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
 

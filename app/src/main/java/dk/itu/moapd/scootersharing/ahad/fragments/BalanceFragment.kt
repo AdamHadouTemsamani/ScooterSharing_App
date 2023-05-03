@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -24,7 +25,7 @@ class BalanceFragment : Fragment() {
         private val TAG = BalanceFragment.javaClass::class.java.simpleName
     }
 
-    private val userBalanceViewModel: UserBalanceViewModel by viewModels {
+    private val userBalanceViewModel: UserBalanceViewModel by activityViewModels() {
         UserBalanceViewModelFactory((requireActivity().application as ScooterApplication).userRepository)
     }
 
@@ -55,25 +56,15 @@ class BalanceFragment : Fragment() {
         userBalanceViewModel.users.observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 for (user in it) {
-                    if (user.email == auth.currentUser?.email) {
-                        binding.currentBalanceText.text = user.balance.toString() + " Kr."
-                    } else {
-                        val fragment = CardFragment()
-                        requireActivity().supportFragmentManager
-                            .beginTransaction()
-                            .replace(R.id.fragment_container_view,fragment)
-                            .addToBackStack(null)
-                            .commit()
+
+                    if(user.email == auth.currentUser?.email && !user.isCard) {
+                        Log.i(TAG,"I am checking their card and it is: ${user.isCard}")
+                        changeFragment()
                     }
                 }
             }
             if (it.isEmpty()) {
-                val fragment = CardFragment()
-                requireActivity().supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.fragment_container_view,fragment)
-                    .addToBackStack(null)
-                    .commit()
+                changeFragment()
             }
         }
 
@@ -127,7 +118,8 @@ class BalanceFragment : Fragment() {
                     if(it.isNotEmpty()) {
                         for(user in it) {
                             if(user.email == auth.currentUser?.email) {
-                                userBalanceViewModel.delete(user)
+                                user.isCard = false
+                                userBalanceViewModel.update(user)
                                 showMessage("Your card has succesfully been removed")
                                 requireActivity().supportFragmentManager
                                     .popBackStack()
@@ -141,7 +133,7 @@ class BalanceFragment : Fragment() {
             userBalanceViewModel.users.observe(viewLifecycleOwner) {
                 if(it.isNotEmpty()) {
                     for(user in it) {
-                        if(user.email == auth.currentUser?.email) {
+                        if(user.email == auth.currentUser?.email && user.isCard) {
                             currentBalanceText.text = user.balance.toString() + " Kr."
                         }
                     }
@@ -154,6 +146,15 @@ class BalanceFragment : Fragment() {
     private fun showMessage(message: String) {
         //Snackbar :D
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+    }
+
+    fun changeFragment() {
+        val fragment = CardFragment()
+        requireActivity().supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container_view,fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
 

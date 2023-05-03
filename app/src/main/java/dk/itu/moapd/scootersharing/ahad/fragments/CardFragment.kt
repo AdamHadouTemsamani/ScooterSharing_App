@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.google.firebase.auth.FirebaseAuth
 import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
@@ -30,10 +31,7 @@ class CardFragment : Fragment() {
 
     private lateinit var auth: FirebaseAuth
 
-    private val userBalanceViewModel: UserBalanceViewModel by viewModels {
-        UserBalanceViewModelFactory((requireActivity().application as ScooterApplication).userRepository)
-    }
-
+    private val userBalanceViewModel: UserBalanceViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,26 +60,21 @@ class CardFragment : Fragment() {
                     userBalanceViewModel.users.observe(viewLifecycleOwner) {
                         if (it.isNotEmpty()) {
                             for (user in it) {
-                                userBalanceViewModel.users.observe(viewLifecycleOwner) {
-                                    val userBalance = auth.currentUser?.email?.let { email ->
-                                        UserBalance(0,
-                                            email,
-                                            0.0)
-                                    }
-                                    if (userBalance != null) {
-                                        userBalanceViewModel.insert(userBalance)
+                                    if(user.email == auth.currentUser!!.email) {
+                                        user.isCard = true
+                                        userBalanceViewModel.update(user)
                                         requireActivity().supportFragmentManager
                                             .popBackStack()
                                         requireActivity().supportFragmentManager
                                             .popBackStack()
                                     }
-                                }
                             }
                         } else {
                             val user = auth.currentUser?.email?.let { email ->
                                 UserBalance(0,
                                     email,
-                                    0.0)
+                                    0.0,
+                                true)
                             }
                             if (user != null) {
                                 userBalanceViewModel.insert(user)

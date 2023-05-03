@@ -177,16 +177,20 @@ class QrcodeFragment : Fragment() {
     private fun addScooterAndExitCamera(currentLat: Double, currentLong: Double) {
         Log.i(TAG,"Scooter is supposed to be updated and ${scooterName}")
         scooterViewModel.scooters.observe(viewLifecycleOwner) {
+            var isRideExist = false
             for(ride in it) {
+                if (ride.isRide) isRideExist = true
+            }
 
-                if(ride.name!!.equals(scooterName)) {
+            for(ride in it) {
+                if(ride.name!!.equals(scooterName) && !isRideExist) {
                     val id = scooterName?.get(4)?.toInt()
                     val date = Calendar.getInstance().time.minutes.toLong()
-                    val scooter = id?.let { Scooter(it, scooterName,"Unknown",date,date,currentLong,currentLat,currentLong,currentLat,true) }
-                    scooterViewModel.delete(ride)
-                    if (scooter != null) {
-                        scooterViewModel.insert(scooter)
-                    }
+                    ride.isRide = true
+                    val scooter = id?.let { Scooter(it, scooterName,"Unknown",date,date,currentLong,currentLat,currentLong,currentLat,true,scooterName + ".jpg") }
+                    scooterViewModel.update(ride)
+                } else {
+                    showMessage("You currently already have an active ride.")
                 }
             }
         }
@@ -194,6 +198,12 @@ class QrcodeFragment : Fragment() {
             .popBackStack()
         requireActivity().supportFragmentManager
             .popBackStack()
+        val fragment = MainFragment()
+        requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container_view,fragment).commit()
+    }
+
+    private fun showMessage(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
 }

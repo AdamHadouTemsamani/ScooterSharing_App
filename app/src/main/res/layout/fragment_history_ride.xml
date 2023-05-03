@@ -18,7 +18,8 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_previous_rides"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="642dp"
         android:visibility="visible" />
+
 
 </LinearLayout>

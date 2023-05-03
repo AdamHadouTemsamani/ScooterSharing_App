@@ -5,10 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
+import dk.itu.moapd.scootersharing.ahad.R
 import dk.itu.moapd.scootersharing.ahad.adapters.CustomAdapter
 import dk.itu.moapd.scootersharing.ahad.adapters.HistoryRideAdapter
 import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
@@ -33,7 +35,7 @@ class HistoryRideFragment : Fragment() {
         }
 
     private val historyViewModel: HistoryViewModel by viewModels {
-        HistoryViewModelFactory((requireActivity().application as ScooterApplication).historyRepository)
+        HistoryViewModel.HistoryViewModelFactory((requireActivity().application as ScooterApplication).historyRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

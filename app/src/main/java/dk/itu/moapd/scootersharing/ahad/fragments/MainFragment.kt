@@ -16,6 +16,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -145,11 +146,14 @@ class MainFragment : Fragment() {
 
 
 
-        historyViewModel.previousRides.observe(viewLifecycleOwner) { previousRides ->
-            previousRides?.let {
-                previousRidesAdapter.submitList(it)
+        val yourCurrentScooter = mutableListOf<Scooter>()
+        scooterViewModel.scooters.observe(viewLifecycleOwner) {
+            for (ride in it) {
+                if(ride.isRide) yourCurrentScooter.add(ride)
             }
+            adapter.submitList(yourCurrentScooter)
         }
+
 
         Log.i(TAG, "7 Current size of Scooter" + adapter.currentList.size)
 
@@ -179,13 +183,8 @@ class MainFragment : Fragment() {
         Log.i(TAG, "8 Current size of Scooter" + adapter.currentList.size)
 
 
-        scooterViewModel.scooters.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
-        }
-
-
         with(binding) {
-            
+
             seeBalanceButton.setOnClickListener {
                 val fragment = BalanceFragment()
                 requireActivity().supportFragmentManager
@@ -226,6 +225,9 @@ class MainFragment : Fragment() {
             }
             *(
              */
+
+
+
             for (ride in adapter.currentList) {
                 setAddress(ride.currentLat, ride.currentLong)
             }
@@ -265,6 +267,7 @@ class MainFragment : Fragment() {
                     dialog.setPositiveButton("Accept") { dialog, which ->
                         val scooter = adapter.currentList[position]
                         Log.i(TAG, "Scooter URL" + scooter.URL)
+                        scooter.isRide = false
                         scooter.endTime = Calendar.getInstance().time.minutes.toLong()
                         val diffTime = abs(scooter.startTime - scooter.endTime)
                         val previousRide = History(
@@ -278,7 +281,7 @@ class MainFragment : Fragment() {
                             (diffTime * 2).toInt(),
                             scooter.URL
                         ) //This needs to be auto incremented
-                        scooterViewModel.delete(scooter)
+                        scooterViewModel.update(scooter)
                         historyViewModel.insert(previousRide)
                         previousRidesAdapter.notifyItemChanged(position)
 
@@ -310,6 +313,9 @@ class MainFragment : Fragment() {
                 broadcastReceiver, IntentFilter(LocationService.ACTION_BROADCAST)
 
             )
+
+            adapter.notifyDataSetChanged();
+
         }
 
         Log.i(TAG, "I am resummeignng 2")

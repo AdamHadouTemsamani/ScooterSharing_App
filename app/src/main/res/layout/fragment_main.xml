@@ -72,13 +72,19 @@
     <View
         android:id="@+id/view2"
         android:layout_width="match_parent"
-        android:layout_height="90dp"/>
+        android:layout_height="31dp" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:text="@string/current_scooter"
+        android:textAlignment="center"
+        android:textSize="24sp" />
 
     <!-- List items using MaterialDesign Cards -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_rides"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="visible"/>
+        android:layout_height="310dp"
+        android:visibility="visible" />
 </LinearLayout>
