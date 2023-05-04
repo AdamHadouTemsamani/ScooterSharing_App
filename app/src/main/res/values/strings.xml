@@ -1,28 +1,15 @@
 <resources>
     <string name="app_name">Scooter Sharing</string>
-    <string name="edit_text_name">Name:</string>
-    <string name="start_ride_button">Start Ride</string>
-    <string name="edit_ride_button">Edit Ride</string>
     <string name="hint_text_name">Enter name</string>
-    <string name="edit_text_location">Location:</string>
-    <string name="hint_text_location">Enter location</string>
-    <string name="update_ride_button">Update Ride</string>
     <string name="history_ride_button">Ride History</string>
-    <string name="show_rides_button">Show Rides</string>
     <string name="name">Name</string>
     <string name="location">Location</string>
     <string name="timestamp">Timestamp</string>
-    <string name="open_snackbar">Open Snackbar</string>
-    <string name="login_button">Sign In</string>
     <string name="time">Time</string>
     <string name="price">Price</string>
     <string name="history">History</string>
     <string name="content_description_media">This is an image of a scooter</string>
-    <string name="latitude">Latitude</string>
-    <string name="latitude_text">Latitude</string>
-    <string name="longitude_text">Longitude</string>
     <string name="find_scooter_button">Find Scooter</string>
-    <string name="address_text">Current Address</string>
     <string name="currentLocation">Current Location</string>
     <string name="startLocation">Start Location</string>
     <string name="endLocation">End Location</string>
@@ -38,6 +25,5 @@
     <string name="see_balance_button">See Balance</string>
     <string name="find_closest_button">Find Closest Scooter</string>
     <string name="current_scooter">Your currently rented scooter</string>
-    <string name="delete_history_button">Delete ride history</string>
     <string name="log_out_button">Log Out</string>
 </resources>
