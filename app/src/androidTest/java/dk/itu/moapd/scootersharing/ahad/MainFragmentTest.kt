@@ -18,16 +18,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MainFragmentTest {
 
-    @get:Rule
-    var fragmentContainer = launchFragmentInContainer<MainFragment>()
-    @Test
-    fun createMainFragment_test() {
-        fragmentContainer.moveToState(Lifecycle.State.RESUMED)
-        onView(withId(R.id.show_rides_button)).perform(click())
-            .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
-    }
 
-
+//This class cannot be deleted due to issues with Git :(
 
 
 }

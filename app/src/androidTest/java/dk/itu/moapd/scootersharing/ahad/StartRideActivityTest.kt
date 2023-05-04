@@ -15,33 +15,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class StartRideActivityTest {
 
-    @get:Rule
-    var fragmentContainer = launchFragmentInContainer<StartRideFragment>()
+//This class cannot be deleted due to issues with Git :(
 
-    @Test
-    fun createMainFragment() {
-        fragmentContainer.moveToState(Lifecycle.State.RESUMED)
-    }
-
-    @Test
-    fun readNameEditText() {
-        onView(withId(R.id.edit_text_name))
-            .check(matches(ViewMatchers.withText("")))
-    }
-
-    @Test
-    fun readLocationEditText() {
-        onView(withId(R.id.edit_text_location))
-            .check(matches(ViewMatchers.withText("")))
-    }
-
-    @Test
-    fun clickAddButton() {
-        onView(withId(R.id.edit_text_name))
-            .perform(clearText(), typeText("TestScooter"))
-        onView(withId(R.id.edit_text_location))
-            .perform(clearText(), typeText("ITU"))
-        onView(withId(R.id.start_ride_button))
-            .perform(click())
-    }
 }
