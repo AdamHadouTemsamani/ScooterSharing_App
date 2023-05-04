@@ -31,7 +31,7 @@ class ScooterRepository(private val scooterDao: ScooterDao) {
 
     @WorkerThread
     suspend fun updateById(id: Int, isRide: Boolean) {
-        scooterDao.updateById(id,isRide)
+        scooterDao.updateById(id, isRide)
     }
 
     @WorkerThread

@@ -6,11 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
 import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentCardBinding
-import dk.itu.moapd.scootersharing.ahad.model.CardViewModel
 import dk.itu.moapd.scootersharing.ahad.model.UserBalance
 import dk.itu.moapd.scootersharing.ahad.model.UserBalanceViewModel
 import dk.itu.moapd.scootersharing.ahad.model.UserBalanceViewModelFactory

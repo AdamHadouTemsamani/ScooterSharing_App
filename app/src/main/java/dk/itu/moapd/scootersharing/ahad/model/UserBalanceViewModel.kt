@@ -5,7 +5,7 @@ import kotlinx.coroutines.launch
 
 class UserBalanceViewModel(private val repository: UserBalanceRepository) : ViewModel() {
 
-    val users : LiveData<List<UserBalance>> = repository.users.asLiveData()
+    val users: LiveData<List<UserBalance>> = repository.users.asLiveData()
 
     fun insert(user: UserBalance) = viewModelScope.launch {
         repository.insert(user)
@@ -20,7 +20,8 @@ class UserBalanceViewModel(private val repository: UserBalanceRepository) : View
     }
 }
 
-class UserBalanceViewModelFactory(private val repository: UserBalanceRepository) : ViewModelProvider.Factory {
+class UserBalanceViewModelFactory(private val repository: UserBalanceRepository) :
+    ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(UserBalanceViewModel::class.java))
             @Suppress("UNCHECKED_CAST")

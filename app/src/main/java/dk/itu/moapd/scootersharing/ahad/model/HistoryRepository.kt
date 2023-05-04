@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 class HistoryRepository(private val historyDao: HistoryDao) {
 
-    val previousRides : Flow<List<History>> = historyDao.getPreviousRides()
+    val previousRides: Flow<List<History>> = historyDao.getPreviousRides()
 
     @WorkerThread
     suspend fun insert(previousRide: History) {

@@ -66,7 +66,6 @@ class BalanceFragment : Fragment() {
                     //If the current users email is corrects and if they have added their card.
                     //If they have, navigate to the CardFragment
                     if (user.email == auth.currentUser?.email && !user.isCard) {
-                        Log.i(TAG, "I am checking their card and it is: ${user.isCard}")
                         changeFragment()
                     }
                 }

@@ -35,7 +35,6 @@ class LocationService : Service() {
     private var mLocationCallback: LocationCallback? = null
 
     override fun onBind(intent: Intent?): IBinder {
-        Log.i(TAG, "in onBind()")
         requestLocationUpdates()
         return LocalBinder()
     }
@@ -43,7 +42,6 @@ class LocationService : Service() {
     var mLocation: Location? = null
 
     fun requestLocationUpdates() {
-        Log.i(TAG, "Requesting location updates")
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         mLocationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
@@ -88,7 +86,6 @@ class LocationService : Service() {
             return this@LocationService;
         }
     }
-
 
 
     fun checkPermission() =

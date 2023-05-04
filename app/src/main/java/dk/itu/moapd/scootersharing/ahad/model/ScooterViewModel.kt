@@ -21,9 +21,6 @@ class ScooterViewModel(private val repository: ScooterRepository) : ViewModel() 
         repository.insert(scooter)
     }
 
-    fun deleteById(id: Int) = viewModelScope.launch {
-        repository.deleteById(id)
-    }
 
     fun update(scooter: Scooter) = viewModelScope.launch {
         repository.update(scooter)

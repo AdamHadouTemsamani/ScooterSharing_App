@@ -195,7 +195,6 @@ class QrcodeFragment : Fragment() {
     //When done it is done it pops back to CameraFragment.
     @RequiresApi(Build.VERSION_CODES.O)
     private fun addScooterAndExitCamera(currentLat: Double, currentLong: Double) {
-        Log.i(TAG, "Scooter is supposed to be updated and ${scooterName}")
         scooterViewModel.scooters.observe(viewLifecycleOwner) {
             var isRideExist = false
             for (ride in it) {

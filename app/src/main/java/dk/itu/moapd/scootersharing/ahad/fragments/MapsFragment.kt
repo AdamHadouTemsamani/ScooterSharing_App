@@ -324,7 +324,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         val distanceInMeters = SphericalUtil.computeDistanceBetween(startLatLng, geofenceLatLng)
 
         if (distanceInMeters < geopshere.radius) {
-            Log.i(TAG, "You have entered the geosphere of ${geopshere.name} my brother!")
             return true
         }
         return false
@@ -406,12 +405,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             val location: Location? =
                 intent.extras?.getParcelable(LocationService.EXTRA_LOCATION)
             if (location != null) {
-                Log.i(TAG, "Receiever lat: " + location.latitude.toString())
-                Log.i(TAG, "Receiever long: " + location.longitude.toString())
                 currentLocation = location
-                Log.i(TAG, "Location is being updated")
             }
-            if (location == null) Log.i(TAG, "There is no location dumbass")
         }
 
 
@@ -428,15 +423,12 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             mService?.subscribeToService { location ->
                 currentLocation = location
             }
-
-            Log.i(TAG, "Yes work, service yes yes")
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
             mService?.unsubscribeToService()
             mService = null
             mBound = false
-            Log.i(TAG, "no work, service no no")
         }
     }
 

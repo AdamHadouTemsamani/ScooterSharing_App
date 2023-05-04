@@ -5,7 +5,7 @@ import kotlinx.coroutines.launch
 
 class HistoryViewModel(private val repository: HistoryRepository) : ViewModel() {
 
-    val previousRides : LiveData<List<History>> = repository.previousRides.asLiveData()
+    val previousRides: LiveData<List<History>> = repository.previousRides.asLiveData()
 
     fun insert(previousRide: History) = viewModelScope.launch {
         repository.insert(previousRide)
@@ -16,7 +16,8 @@ class HistoryViewModel(private val repository: HistoryRepository) : ViewModel() 
         repository.delete(previousRide)
     }
 
-    class HistoryViewModelFactory(private val repository: HistoryRepository) : ViewModelProvider.Factory {
+    class HistoryViewModelFactory(private val repository: HistoryRepository) :
+        ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(HistoryViewModel::class.java))
                 @Suppress("UNCHECKED_CAST")

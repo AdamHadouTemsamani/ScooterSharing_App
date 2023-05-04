@@ -409,15 +409,12 @@ class MainFragment : Fragment() {
             mService?.subscribeToService { location ->
                 currentLocation = location
             }
-
-            Log.i(TAG, "Yes work, service yes yes")
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
             mService?.unsubscribeToService()
             mService = null
             mBound = false
-            Log.i(TAG, "no work, service no no")
         }
     }
 

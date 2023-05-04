@@ -14,9 +14,9 @@ interface HistoryDao {
     suspend fun delete(historyRide: History)
 
     @Query("SELECT * FROM history")
-    fun getPreviousRides() : Flow<List<History>>
+    fun getPreviousRides(): Flow<List<History>>
 
     @Query("SELECT * FROM history WHERE id=(:id)")
-    fun getPreviousRide(id: Int) : History
+    fun getPreviousRide(id: Int): History
 
 }

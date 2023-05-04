@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.*
 
+// A data class that encapsulates information about a previously active ride.
 @Entity(tableName = "history")
 data class History(
     @PrimaryKey(autoGenerate = true) val id: Int,

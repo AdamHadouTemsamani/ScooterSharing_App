@@ -8,9 +8,7 @@ import dk.itu.moapd.scootersharing.ahad.fragments.CameraFragment
 import java.io.Serializable
 import java.util.*
 
-/**
- * A data class that encapsulates the information about a scooter
- */
+// A data class that encapsulates information about a scooter
 @Entity(tableName = "scooter")
 data class Scooter (
 
