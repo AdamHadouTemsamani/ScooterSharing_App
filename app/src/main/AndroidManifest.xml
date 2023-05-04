@@ -36,7 +36,7 @@
         android:theme="@style/Theme.ScooterSharing"
         tools:targetApi="31">
         <service
-            android:name=".LocationService"
+            android:name=".service.LocationService"
             android:enabled="true"
             android:exported="false"/>
         <activity

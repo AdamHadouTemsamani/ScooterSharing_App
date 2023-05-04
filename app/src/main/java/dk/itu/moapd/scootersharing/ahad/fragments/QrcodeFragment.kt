@@ -38,6 +38,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.*
 
+//This is the Fragment responsible for scanning QR codes of a Scooter to start a ride.
 class QrcodeFragment : Fragment() {
 
     companion object {
@@ -45,6 +46,7 @@ class QrcodeFragment : Fragment() {
         private const val ALL_PERMISSIONS_RESULT = 1011
     }
 
+    //Binding that contains reference to root view.
     private var _binding: FragmentQrscannerBinding? = null
 
     private val binding
@@ -52,11 +54,13 @@ class QrcodeFragment : Fragment() {
             "Cannot access binding because it is null. Is the view visible?"
         }
 
-
+    //ViewModel for getting the scooters that exist in the database
     private val scooterViewModel: ScooterViewModel by activityViewModels()
 
+    //Library responsible for the QR scanner.
     private lateinit var codeScanner: CodeScanner
 
+    //Private fields used to start a ride
     private var scooterName: String? = null
     private var currentLat: Double? = null
     private var currentLong: Double? = null
@@ -64,6 +68,7 @@ class QrcodeFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //We start by checking the required permissions (camera)
         if (checkPermission()) requestUserPermissions()
     }
 
@@ -72,6 +77,7 @@ class QrcodeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        //Inflate layout from binding
         _binding = FragmentQrscannerBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -80,14 +86,15 @@ class QrcodeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
+        //Get the data given by our MapFragment so that we can start a ride.
         currentLat = requireArguments().getString("currentLat")!!.toDouble()
         currentLong = requireArguments().getString("currentLong")!!.toDouble()
         closestScooter = requireArguments().getString("closestScooter")
-        Log.i(TAG,"Current Lat: " + currentLat + " Current Long: " + currentLong  )
 
+        //Start our QR scanner view
         val scannerView = view.findViewById<CodeScannerView>(R.id.scanner_view)
 
+        //Initialize our QR scanner.
         codeScanner = CodeScanner(requireContext(), scannerView)
 
         //Parameters for camera that uses CodeScanner
@@ -103,8 +110,6 @@ class QrcodeFragment : Fragment() {
             codeScanner.decodeCallback = DecodeCallback {
 
                 requireActivity().runOnUiThread {
-                    Log.i(TAG, "QRCode result: " + it.text)
-                    Log.i(TAG,"Is it empty: " + it.text.isEmpty())
                     if (!it.text.isEmpty()) {
                         scooterName = it.text
                         val dialog = MaterialAlertDialogBuilder(requireContext())
@@ -113,10 +118,10 @@ class QrcodeFragment : Fragment() {
                         MaterialAlertDialogBuilder(requireContext())
                             .setTitle("Are you sure you want to start the ride with: " + it.text)
                             .setNegativeButton("Decline") { dialog, which ->
-
+                                //Do nothing
                             }
                             .setPositiveButton("Accept") { dialog, which ->
-                                    addScooterAndExitCamera(currentLat!!, currentLong!!)
+                                addScooterAndExitCamera(currentLat!!, currentLong!!)
                             }
                             .show()
                     }
@@ -131,21 +136,23 @@ class QrcodeFragment : Fragment() {
         }
 
         scannerView.setOnClickListener {
-            codeScanner.startPreview()
+            codeScanner.startPreview() //This starts the QR scanner preview.
         }
 
     }
 
     override fun onResume() {
         super.onResume()
+        //When we resume our Fragment we also call startPreview.
         codeScanner.startPreview()
     }
 
     override fun onPause() {
-        codeScanner.releaseResources()
+        codeScanner.releaseResources() //This is done so that our app is not resource heavy.
         super.onPause()
     }
 
+    //Method that asks the user the appropriate permissions to use features in this fragment.
     private fun requestUserPermissions() {
         //An array with permissions.
         val permissions: ArrayList<String> = ArrayList()
@@ -162,6 +169,7 @@ class QrcodeFragment : Fragment() {
             )
     }
 
+    //Checks if the user has accepted the required permissions.
     private fun checkPermission() =
         context?.let {
             ContextCompat.checkSelfPermission(
@@ -182,39 +190,44 @@ class QrcodeFragment : Fragment() {
 
         return result
     }
+
+    //This updates our our scooter in database so that isRide is true.
+    //When done it is done it pops back to CameraFragment.
     @RequiresApi(Build.VERSION_CODES.O)
     private fun addScooterAndExitCamera(currentLat: Double, currentLong: Double) {
-        Log.i(TAG,"Scooter is supposed to be updated and ${scooterName}")
+        Log.i(TAG, "Scooter is supposed to be updated and ${scooterName}")
         scooterViewModel.scooters.observe(viewLifecycleOwner) {
             var isRideExist = false
-            for(ride in it) {
+            for (ride in it) {
                 if (ride.isRide) isRideExist = true
             }
 
-            for(ride in it) {
+            for (ride in it) {
                 if (scooterName != closestScooter) {
+                    //If it isn't the closest scooter it can't be within it's geolocation.
                     showMessage("You are not within the area of ${closestScooter}")
                     return@observe
-                } else if(ride.name!!.equals(scooterName) && !isRideExist && scooterName == closestScooter) {
-                    val id = scooterName?.get(4)?.toInt()
-                    val date = LocalTime.now()
-                    val minutesInDay = Duration.between(date.withSecond(0).withMinute(0).withHour(0), date).toMinutes()
+
+                } else if (ride.name!!.equals(scooterName) && !isRideExist && scooterName == closestScooter) {
+                    //We check whether a ride already exists. Do nothing if it does.
                     ride.isRide = true
-                    val scooter = id?.let { Scooter(it, scooterName,"Unknown",minutesInDay,minutesInDay,currentLong,currentLat,currentLong,currentLat,true,scooterName + ".jpg") }
                     scooterViewModel.update(ride)
                 } else {
                     showMessage("You currently already have an active ride.")
                 }
             }
         }
+        //This goes pops our stack and returns to MainFragment.
         requireActivity().supportFragmentManager
             .popBackStack()
         requireActivity().supportFragmentManager
             .popBackStack()
         val fragment = MainFragment()
-        requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_container_view,fragment).commit()
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container_view, fragment).commit()
     }
 
+    //Makes it easier to make a Snackbar
     private fun showMessage(message: String) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }

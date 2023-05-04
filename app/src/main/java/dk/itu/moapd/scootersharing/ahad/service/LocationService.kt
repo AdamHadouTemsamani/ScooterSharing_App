@@ -1,4 +1,4 @@
-package dk.itu.moapd.scootersharing.ahad
+package dk.itu.moapd.scootersharing.ahad.service
 
 import android.app.Service
 import android.content.Intent

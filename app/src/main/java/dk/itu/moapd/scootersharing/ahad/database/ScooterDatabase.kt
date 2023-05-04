@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.Executors
 
+//Entities in our Database
 @Database(entities = [Scooter::class, History::class, UserBalance::class], version = 1)
 abstract class ScooterDatabase : RoomDatabase() {
     abstract fun scooterDao() : ScooterDao
@@ -24,6 +25,7 @@ abstract class ScooterDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: ScooterDatabase? = null
 
+        //Makes a static variable (singleton) of database og return an instance of it.
         fun getDatabase(context: Context): ScooterDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -39,7 +41,7 @@ abstract class ScooterDatabase : RoomDatabase() {
         }
     }
 
-
+    //This pre-populates our database using a RoomDatabase Callback.
     class Prepopulate(private val context: Context) : RoomDatabase.Callback() {
 
         val date = Calendar.getInstance().time.minutes.toLong()

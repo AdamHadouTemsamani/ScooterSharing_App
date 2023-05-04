@@ -16,7 +16,6 @@ import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
-import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -31,7 +30,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
-import dk.itu.moapd.scootersharing.ahad.LocationService
+import dk.itu.moapd.scootersharing.ahad.service.LocationService
 import dk.itu.moapd.scootersharing.ahad.R
 import dk.itu.moapd.scootersharing.ahad.activities.*
 import dk.itu.moapd.scootersharing.ahad.utils.SwipeToDeleteCallback
@@ -44,8 +43,8 @@ import java.lang.Math.abs
 import java.time.Duration
 import java.time.LocalTime
 import java.util.*
-import java.util.concurrent.TimeUnit
 
+//This is Fragment that is hosted first when MainActivity is run.
 class MainFragment : Fragment() {
 
     companion object {
@@ -118,7 +117,7 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         //Fix main fragment twice when orientation changes.
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             val fragment = MainFragment()
             requireActivity().supportFragmentManager
                 .popBackStack()
@@ -139,14 +138,14 @@ class MainFragment : Fragment() {
         val yourCurrentScooter = mutableListOf<Scooter>()
         scooterViewModel.scooters.observe(viewLifecycleOwner) {
             for (ride in it) {
-                if(ride.isRide) yourCurrentScooter.add(ride)
+                if (ride.isRide) yourCurrentScooter.add(ride)
             }
             adapter.submitList(yourCurrentScooter)
         }
 
         //Start intent for our Location Service
-        Intent(requireContext(),LocationService::class.java).also {
-            requireActivity().bindService(it,mServiceConnection,Context.BIND_AUTO_CREATE)
+        Intent(requireContext(), LocationService::class.java).also {
+            requireActivity().bindService(it, mServiceConnection, Context.BIND_AUTO_CREATE)
         }
 
         return binding.root
@@ -160,16 +159,17 @@ class MainFragment : Fragment() {
 
             //Updates the appropriate information of the current ride.
             val date = LocalTime.now()
-            val minutesInDay = Duration.between(date.withSecond(0).withMinute(0).withHour(0), date).toMinutes()
+            val minutesInDay =
+                Duration.between(date.withSecond(0).withMinute(0).withHour(0), date).toMinutes()
             //Updating the current location of Scooter
             scooterViewModel.scooters.observe(viewLifecycleOwner) {
                 for (ride in it) {
                     if (ride.isRide) {
-                        if(currentLocation != null) {
+                        if (currentLocation != null) {
                             ride.endTime = minutesInDay
                             ride.currentLong = currentLocation!!.longitude
                             ride.currentLat = currentLocation!!.latitude
-                            setAddress(ride.currentLat,ride.currentLong)
+                            setAddress(ride.currentLat, ride.currentLong)
                         }
 
                     }
@@ -186,7 +186,7 @@ class MainFragment : Fragment() {
             //Each of these handles what happens when user clicks on button in the layout.
 
             seeBalanceButton.setOnClickListener {
-                if(auth.currentUser == null) {
+                if (auth.currentUser == null) {
                     val intent = Intent(activity, LoginActivity::class.java)
                     startActivity(intent)
                 }
@@ -199,7 +199,7 @@ class MainFragment : Fragment() {
             }
 
             findScooterButton.setOnClickListener {
-                if(auth.currentUser == null) {
+                if (auth.currentUser == null) {
                     val intent = Intent(activity, LoginActivity::class.java)
                     startActivity(intent)
                 }
@@ -253,9 +253,10 @@ class MainFragment : Fragment() {
                         //Calculate current time and price of scooter
                         val scooter = adapter.currentList[position]
                         val date = LocalTime.now()
-                        val minutesInDay = Duration.between(date.withSecond(0).withMinute(0).withHour(0), date).toMinutes()
+                        val minutesInDay =
+                            Duration.between(date.withSecond(0).withMinute(0).withHour(0), date)
+                                .toMinutes()
                         val price = abs(scooter.startTime - minutesInDay)
-
                         //Make a History object
                         val previousRide = History(
                             0, scooter.name,
@@ -279,8 +280,7 @@ class MainFragment : Fragment() {
                                 //It enters this if the user has enough balance.
                                 scooter.isRide = false
                                 scooter.endTime = System.currentTimeMillis()
-                                user.balance = abs(scooter.startTime - scooter.endTime).toDouble()
-
+                                user.balance = userBalance
                                 //Update all ViewModels
                                 userBalanceViewModel.update(user)
                                 scooterViewModel.update(scooter)
@@ -410,23 +410,23 @@ class MainFragment : Fragment() {
                 currentLocation = location
             }
 
-            Log.i(TAG,"Yes work, service yes yes")
+            Log.i(TAG, "Yes work, service yes yes")
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
             mService?.unsubscribeToService()
             mService = null
             mBound = false
-            Log.i(TAG,"no work, service no no")
+            Log.i(TAG, "no work, service no no")
         }
     }
 
     //Gets the current user from Firebase Authentication.
-    fun getCurrentUser() : UserBalance? {
+    fun getCurrentUser(): UserBalance? {
         var userBalance: UserBalance? = null
         userBalanceViewModel.users.observe(viewLifecycleOwner) {
-            for(user in it) {
-                if(user.email == auth.currentUser!!.email) {
+            for (user in it) {
+                if (user.email == auth.currentUser!!.email) {
                     userBalance = user
                 }
             }
