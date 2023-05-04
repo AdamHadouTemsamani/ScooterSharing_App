@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import dk.itu.moapd.scootersharing.ahad.model.Scooter
 import dk.itu.moapd.scootersharing.ahad.databinding.ListRidesBinding
+import java.lang.Math.abs
 
 class CustomAdapter() :
     ListAdapter<Scooter, CustomAdapter.ViewHolder>(ScooterComparator()) {
@@ -36,9 +37,10 @@ class CustomAdapter() :
                     .into(binding.image)
             }
 
+
             binding.name.text = scooter.name
             binding.location.text = scooter.location
-            binding.timestamp.text = scooter.startTime.toString()
+            binding.timestamp.text = abs(scooter.startTime - scooter.endTime).toString() + " Kr."
             val startLocation = Pair(scooter.startLong,scooter.startLat)
             val currentLocation = Pair(scooter.currentLong,scooter.currentLat)
             binding.startLocation.text = "Longtitude: " + startLocation.first.toString() + " Latitude: " + startLocation.second.toString()

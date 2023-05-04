@@ -41,12 +41,12 @@ class HistoryRideAdapter() :
 
                 binding.name.text = previousRides.name
                 binding.location.text = previousRides.location
-                binding.time.text = previousRides.time.toString()
+                binding.time.text = previousRides.time.toString() + " Minutes"
                 val startLocation = Pair(previousRides.startLong,previousRides.startLat)
                 val endLocation = Pair(previousRides.endLong,previousRides.endLat)
                 binding.startLocation.text = "Longtitude: " + startLocation.first.toString() + " Latitude: " + startLocation.second.toString()
                 binding.endLocation.text = "Longtitude: " + endLocation.first.toString() + " Latitude: " + endLocation.second.toString()
-                binding.price.text = previousRides.price.toString()
+                binding.price.text = previousRides.price.toString() + "Kr."
             }
         }
 

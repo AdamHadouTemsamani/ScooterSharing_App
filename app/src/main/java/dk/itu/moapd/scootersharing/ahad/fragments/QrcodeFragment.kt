@@ -4,12 +4,14 @@ import android.Manifest
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
@@ -31,6 +33,9 @@ import dk.itu.moapd.scootersharing.ahad.model.History
 import dk.itu.moapd.scootersharing.ahad.model.Scooter
 import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModel
 import dk.itu.moapd.scootersharing.ahad.model.ScooterViewModelFactory
+import java.time.Duration
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.*
 
 class QrcodeFragment : Fragment() {
@@ -71,6 +76,7 @@ class QrcodeFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -176,6 +182,7 @@ class QrcodeFragment : Fragment() {
 
         return result
     }
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun addScooterAndExitCamera(currentLat: Double, currentLong: Double) {
         Log.i(TAG,"Scooter is supposed to be updated and ${scooterName}")
         scooterViewModel.scooters.observe(viewLifecycleOwner) {
@@ -190,9 +197,10 @@ class QrcodeFragment : Fragment() {
                     return@observe
                 } else if(ride.name!!.equals(scooterName) && !isRideExist && scooterName == closestScooter) {
                     val id = scooterName?.get(4)?.toInt()
-                    val date = Calendar.getInstance().timeInMillis
+                    val date = LocalTime.now()
+                    val minutesInDay = Duration.between(date.withSecond(0).withMinute(0).withHour(0), date).toMinutes()
                     ride.isRide = true
-                    val scooter = id?.let { Scooter(it, scooterName,"Unknown",date,date,currentLong,currentLat,currentLong,currentLat,true,scooterName + ".jpg") }
+                    val scooter = id?.let { Scooter(it, scooterName,"Unknown",minutesInDay,minutesInDay,currentLong,currentLat,currentLong,currentLat,true,scooterName + ".jpg") }
                     scooterViewModel.update(ride)
                 } else {
                     showMessage("You currently already have an active ride.")

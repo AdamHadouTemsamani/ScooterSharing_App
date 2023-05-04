@@ -13,8 +13,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -39,11 +41,11 @@ import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentMainBinding
 import dk.itu.moapd.scootersharing.ahad.model.*
 import java.lang.Math.abs
+import java.time.Duration
+import java.time.LocalTime
 import java.util.*
+import java.util.concurrent.TimeUnit
 
-/**
- * A fragment to show the `Main Fragment` tab
- */
 class MainFragment : Fragment() {
 
     companion object {
@@ -58,15 +60,10 @@ class MainFragment : Fragment() {
     private var mService: LocationService? = null
     private var mBound = false
 
-    // BroadcastReceiver that gets data from service
+    // BroadcastReceiver that gets data from our Location service
     private var broadcastReceiver = LocationBroadcastReceiver()
 
-    /**
-     * View binding is a feature that allows you to more easily write code that interacts with
-     * views. Once view binding is enabled in a module, it generates a binding class for each XML
-     * layout file present in that module. An instance of a binding class contains direct references
-     * to all views that have an ID in the corresponding layout.
-     */
+    //Binding that contains reference to root view.
     private var _binding: FragmentMainBinding? = null
 
     private val binding
@@ -74,11 +71,11 @@ class MainFragment : Fragment() {
             "Cannot access binding because it is null. Is the view visible?"
         }
 
-
+    //Firebase authentication & Firebase storage
     private lateinit var auth: FirebaseAuth
     private lateinit var storage: FirebaseStorage
 
-
+    //Each of the viewModels - used for getting data from SQL database through room.
     private val scooterViewModel: ScooterViewModel by viewModels {
         ScooterViewModelFactory((requireActivity().application as ScooterApplication).scooterRepository)
     }
@@ -91,73 +88,54 @@ class MainFragment : Fragment() {
         UserBalanceViewModelFactory((requireActivity().application as ScooterApplication).userRepository)
     }
 
-    /**
-     * An instance of the Scooter class that has all the information about the scooter
-     */
-
-    /**
-     * Called when the activity is starting. This is where most initialization should go: calling
-     * `setContentView(int)` to inflate the activity's UI, using `findViewById()` to
-     * programmatically interact with widgets in the UI, calling
-     * `managedQuery(android.net.Uri, String[], String, String[], String)` to retrieve cursors for
-     * data being displayed, etc.
-     *
-     * You can call `finish()` from within this function, in which case `onDestroy()` will be
-     * immediately called after `onCreate()` without any of the rest of the activity lifecycle
-     * (`onStart()`, `onResume()`, onPause()`, etc) executing.
-     *
-     * <em>Derived classes must call through to the super class's implementation of this method. If
-     * they do not, an exception will be thrown.</em>
-     *
-     * @param savedInstanceState If the activity is being re-initialized after previously being shut
-     * down then this Bundle contains the data it most recently supplied in `onSaveInstanceState()`.
-     * <b><i>Note: Otherwise it is null.</i></b>
-     */
+    //Called when activity is started.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Initialize Firebase Auth.
+        // Initialize Firebase Auth && set url for Firebase storage.
         auth = FirebaseAuth.getInstance()
         storage = Firebase.storage("gs://moapd-2023-cc929.appspot.com")
 
+        //Check if the user is logged in. If not make them.
         if (auth.currentUser == null) {
             val intent = Intent(activity, LoginActivity::class.java)
             startActivity(intent)
         }
 
-
+        //Check if the user has accepted the required permissions.
         if (checkPermission()) requestUserPermissions()
 
+        //Broadcast receiever that listens to location updated
         broadcastReceiver = LocationBroadcastReceiver()
 
         //Start requesting location and binding to service
-        // This also includes starting service
         mService?.requestLocationUpdates();
 
-
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        //Fix main fragment twice when orientation change
+        //Fix main fragment twice when orientation changes.
         if(savedInstanceState != null) {
             val fragment = MainFragment()
             requireActivity().supportFragmentManager
                 .popBackStack()
         }
 
-
+        //Inflate layout from binding
         _binding = FragmentMainBinding.inflate(inflater, container, false)
+
         // Define the recycler view layout manager and adapter
         binding.listRides.layoutManager = LinearLayoutManager(activity)
-        // Collecting data from the dataset.
+
+        // Adapter for Active rides and History of Rides.
         adapter = CustomAdapter()
         previousRidesAdapter = HistoryRideAdapter()
 
 
+        //Get the currently active ride from database.
         val yourCurrentScooter = mutableListOf<Scooter>()
         scooterViewModel.scooters.observe(viewLifecycleOwner) {
             for (ride in it) {
@@ -166,25 +144,46 @@ class MainFragment : Fragment() {
             adapter.submitList(yourCurrentScooter)
         }
 
-
-        Log.i(TAG, "7 Current size of Scooter" + adapter.currentList.size)
-
-
+        //Start intent for our Location Service
         Intent(requireContext(),LocationService::class.java).also {
             requireActivity().bindService(it,mServiceConnection,Context.BIND_AUTO_CREATE)
         }
 
-
         return binding.root
     }
 
-
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.i(TAG, "8 Current size of Scooter" + adapter.currentList.size)
-
 
         with(binding) {
+
+            //Updates the appropriate information of the current ride. 
+            val date = LocalTime.now()
+            val minutesInDay = Duration.between(date.withSecond(0).withMinute(0).withHour(0), date).toMinutes()
+            //Updating the current location of Scooter
+            scooterViewModel.scooters.observe(viewLifecycleOwner) {
+                for (ride in it) {
+                    if (ride.isRide) {
+                        if(currentLocation != null) {
+                            ride.endTime = minutesInDay
+                            ride.currentLong = currentLocation!!.longitude
+                            ride.currentLat = currentLocation!!.latitude
+                            setAddress(ride.currentLat,ride.currentLong)
+                        }
+
+                    }
+                }
+            }
+
+            //Makes layout manager for our Recycler view.
+            binding.listRides.layoutManager = LinearLayoutManager(activity)
+            binding.listRides.addItemDecoration(
+                DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
+            )
+            binding.listRides.adapter = adapter
+
+            //Each of these handles what happens when user clicks on button in the layout.
 
             seeBalanceButton.setOnClickListener {
                 val fragment = BalanceFragment()
@@ -203,18 +202,11 @@ class MainFragment : Fragment() {
                     .addToBackStack(null)
                     .commit()
             }
-            Log.i(TAG, "3 Current size of Scooter" + adapter.currentList.size)
 
-            for (ride in adapter.currentList) {
-                ride.currentLat = currentLocation!!.latitude
-                ride.currentLong = currentLocation!!.longitude
-                setAddress(ride.currentLat, ride.currentLong)
-            }
-            binding.listRides.layoutManager = LinearLayoutManager(activity)
-            binding.listRides.addItemDecoration(
-                DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
-            )
-            binding.listRides.adapter = adapter
+
+
+
+
 
             historyRideButton.setOnClickListener {
                 val fragment = HistoryRideFragment()
@@ -245,28 +237,32 @@ class MainFragment : Fragment() {
                     }
                     dialog.setPositiveButton("Accept") { dialog, which ->
                         val scooter = adapter.currentList[position]
-                        val diffTime = abs(scooter.startTime - Calendar.getInstance().timeInMillis)
+                        val date = LocalTime.now()
+                        val minutesInDay = Duration.between(date.withSecond(0).withMinute(0).withHour(0), date).toMinutes()
+                        Log.i(TAG, "Start time ${scooter.startTime}")
+                        Log.i(TAG, "End Time ${scooter.endTime}")
+                        val price = abs(scooter.startTime - minutesInDay)
                         Log.i(TAG, "Scooter URL" + scooter.URL)
                         val previousRide = History(
                             0, scooter.name,
                             scooter.location,
-                            diffTime,
+                            price,
                             scooter.startLong,
                             scooter.startLat,
                             scooter.currentLong,
                             scooter.currentLat,
-                            (diffTime * 2).toInt(),
+                            price.toInt(),
                             scooter.URL
                         ) //This needs to be auto incremented
                         val user = getCurrentUser()
-                        var userBalance = user!!.balance?.minus((diffTime * 2).toDouble())
+                        var userBalance = user!!.balance?.minus(price)
                         if (userBalance != null) {
                             if (userBalance < 0) {
                                 showMessage("Your account doesn't have enough balance. Please tank up.")
                             } else {
                                 scooter.isRide = false
-                                scooter.endTime = Calendar.getInstance().time.minutes.toLong()
-                                user.balance = user.balance?.minus((diffTime * 2).toInt())
+                                scooter.endTime = System.currentTimeMillis()
+                                user.balance = abs(scooter.startTime - scooter.endTime).toDouble()
                                 userBalanceViewModel.update(user)
                                 scooterViewModel.update(scooter)
                                 historyViewModel.insert(previousRide)
