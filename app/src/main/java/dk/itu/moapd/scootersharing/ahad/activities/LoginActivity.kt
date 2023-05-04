@@ -9,8 +9,10 @@ import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import dk.itu.moapd.scootersharing.ahad.R
 
+//Activity that handles login for the user
 class LoginActivity : AppCompatActivity() {
 
+    //SignInLauncher using Firebase Auth
     private val signInLauncher =
         registerForActivityResult(
             FirebaseAuthUIActivityResultContract()
@@ -43,6 +45,7 @@ class LoginActivity : AppCompatActivity() {
     private fun onSignInResult(
             result: FirebaseAuthUIAuthenticationResult
     ) {
+        //Checks the result of Authentication.
         if (result.resultCode == RESULT_OK) {
             Log.d("TAG", "Authentication Successful")
             startMainActivity()
@@ -50,6 +53,7 @@ class LoginActivity : AppCompatActivity() {
             Log.d("TAG", "Authentication Failed")
     }
 
+    //Starts MainActivity by using an Intent
     private fun startMainActivity() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)

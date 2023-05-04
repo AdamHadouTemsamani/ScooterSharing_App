@@ -73,6 +73,18 @@
             app:icon="@drawable/baseline_history_24"
             app:iconGravity="textStart" />
 
+        <Button
+            android:id="@+id/log_out_button"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="163dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:text="@string/log_out_button"
+            android:textSize="14sp"
+            app:icon="@drawable/baseline_login_24"
+            app:iconGravity="textStart" />
+
 
         <View
             android:id="@+id/view2"

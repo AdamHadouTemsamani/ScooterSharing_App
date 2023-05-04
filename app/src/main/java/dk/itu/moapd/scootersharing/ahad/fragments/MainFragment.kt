@@ -158,7 +158,7 @@ class MainFragment : Fragment() {
 
         with(binding) {
 
-            //Updates the appropriate information of the current ride. 
+            //Updates the appropriate information of the current ride.
             val date = LocalTime.now()
             val minutesInDay = Duration.between(date.withSecond(0).withMinute(0).withHour(0), date).toMinutes()
             //Updating the current location of Scooter
@@ -186,6 +186,10 @@ class MainFragment : Fragment() {
             //Each of these handles what happens when user clicks on button in the layout.
 
             seeBalanceButton.setOnClickListener {
+                if(auth.currentUser == null) {
+                    val intent = Intent(activity, LoginActivity::class.java)
+                    startActivity(intent)
+                }
                 val fragment = BalanceFragment()
                 requireActivity().supportFragmentManager
                     .beginTransaction()
@@ -195,6 +199,10 @@ class MainFragment : Fragment() {
             }
 
             findScooterButton.setOnClickListener {
+                if(auth.currentUser == null) {
+                    val intent = Intent(activity, LoginActivity::class.java)
+                    startActivity(intent)
+                }
                 val fragment = MapsFragment()
                 requireActivity().supportFragmentManager
                     .beginTransaction()
@@ -202,11 +210,6 @@ class MainFragment : Fragment() {
                     .addToBackStack(null)
                     .commit()
             }
-
-
-
-
-
 
             historyRideButton.setOnClickListener {
                 val fragment = HistoryRideFragment()
@@ -217,32 +220,43 @@ class MainFragment : Fragment() {
                     .commit()
             }
 
+            logOutButton.setOnClickListener {
+                if (auth.currentUser != null) {
+                    auth.signOut()
+                    val intent = Intent(activity, LoginActivity::class.java)
+                    startActivity(intent)
+                }
+            }
 
-            //Adding swipe option
+            //Adds the ability to swipe on a scooter in Recycler view.
             val swipeHandler = object : SwipeToDeleteCallback() {
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     super.onSwiped(viewHolder, direction)
 
+                    //Get specific scooter fra Recycler View
                     val adapter = listRides.adapter as CustomAdapter
                     val position = viewHolder.adapterPosition
 
+                    //Makes a Dialogue option for the user.
                     val dialog = MaterialAlertDialogBuilder(requireContext())
                     dialog.create()
-
                     dialog.setTitle("Are you sure you want to end this ride?")
                     dialog.setMessage("Once you accept you can't undo it.")
+
+                    //Decline
                     dialog.setNegativeButton("Decline") { dialog, which ->
                         adapter.notifyItemChanged(position)
-                        Log.d("TAG", "Ride has not been finished")
                     }
+                    //Accept
                     dialog.setPositiveButton("Accept") { dialog, which ->
+
+                        //Calculate current time and price of scooter
                         val scooter = adapter.currentList[position]
                         val date = LocalTime.now()
                         val minutesInDay = Duration.between(date.withSecond(0).withMinute(0).withHour(0), date).toMinutes()
-                        Log.i(TAG, "Start time ${scooter.startTime}")
-                        Log.i(TAG, "End Time ${scooter.endTime}")
                         val price = abs(scooter.startTime - minutesInDay)
-                        Log.i(TAG, "Scooter URL" + scooter.URL)
+
+                        //Make a History object
                         val previousRide = History(
                             0, scooter.name,
                             scooter.location,
@@ -253,21 +267,27 @@ class MainFragment : Fragment() {
                             scooter.currentLat,
                             price.toInt(),
                             scooter.URL
-                        ) //This needs to be auto incremented
+                        )
+
+                        //Gets the current users balance and checks whether they can pay for scooter.
                         val user = getCurrentUser()
                         var userBalance = user!!.balance?.minus(price)
                         if (userBalance != null) {
                             if (userBalance < 0) {
                                 showMessage("Your account doesn't have enough balance. Please tank up.")
                             } else {
+                                //It enters this if the user has enough balance.
                                 scooter.isRide = false
                                 scooter.endTime = System.currentTimeMillis()
                                 user.balance = abs(scooter.startTime - scooter.endTime).toDouble()
+
+                                //Update all ViewModels
                                 userBalanceViewModel.update(user)
                                 scooterViewModel.update(scooter)
                                 historyViewModel.insert(previousRide)
                                 previousRidesAdapter.notifyItemChanged(position)
 
+                                //Navigate to Camera Fragment.
                                 val fragment = CameraFragment()
                                 val args = Bundle()
                                 args.putString("Scooter", scooter.name)
@@ -278,7 +298,6 @@ class MainFragment : Fragment() {
                                     .addToBackStack(null)
                                     .commit()
                                 scooter.URL = scooter.name + ".jpg"
-                                Log.d("TAG", "Ride has been finished succesfully")
                             }
                         }
 
@@ -288,47 +307,40 @@ class MainFragment : Fragment() {
             val itemTouchHelper = ItemTouchHelper(swipeHandler)
             itemTouchHelper.attachToRecyclerView(binding.listRides)
         }
-        Log.i(TAG, "9 Current size of Scooter" + adapter.currentList.size)
     }
 
     override fun onResume() {
         super.onResume()
-        Log.i(TAG, "I am resummeignng")
+
+        //Starts service up again.
         context?.let {
             LocalBroadcastManager.getInstance(it).registerReceiver(
                 broadcastReceiver, IntentFilter(LocationService.ACTION_BROADCAST)
 
             )
-
-            adapter.notifyDataSetChanged();
-
         }
-
-        Log.i(TAG, "I am resummeignng 2")
         context?.startService(Intent(context, LocationService::class.java))
-        //subscribeToLocationUpdates()
     }
 
     override fun onPause() {
-        Log.i(TAG, "I am peeeeeingg")
         super.onPause()
+        //If the fragment is paused we unregister the broadcast receiever
         context?.let { LocalBroadcastManager.getInstance(it).unregisterReceiver(broadcastReceiver) }
         //unsubscribeToLocationUpdates()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-
+        //When view is destroyed we stop our service connection.
         if (mBound) {
             context?.unbindService(mServiceConnection)
             mBound = false
         }
         context?.stopService(Intent(context, LocationService::class.java))
-
         _binding = null
-
     }
 
+    //Method that asks the user the appropriate permissions to use features in this fragment.
     private fun requestUserPermissions() {
         //An array with permissions.
         val permissions: ArrayList<String> = ArrayList()
@@ -346,6 +358,7 @@ class MainFragment : Fragment() {
             )
     }
 
+    //Checks if the user has accepted the required permissions.
     private fun checkPermission() =
         context?.let {
             ContextCompat.checkSelfPermission(
@@ -357,6 +370,7 @@ class MainFragment : Fragment() {
                         it, Manifest.permission.ACCESS_COARSE_LOCATION
                     )
                 } != PackageManager.PERMISSION_GRANTED
+
 
     private fun permissionsToRequest(permissions: ArrayList<String>): ArrayList<String> {
         val result: ArrayList<String> = ArrayList()
@@ -372,24 +386,18 @@ class MainFragment : Fragment() {
         return result
     }
 
+    //BroadcastReceiver that listens to service and updates our current location
     private inner class LocationBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             val location: Location? =
                 intent.extras?.getParcelable(LocationService.EXTRA_LOCATION)
             if (location != null) {
-                Log.i(TAG,"Receiever lat: " + location.latitude.toString())
-                Log.i(TAG,"Receiever long: " + location.longitude.toString())
                 currentLocation = location
-                Log.i(TAG,"Location is being updated")
             }
-            if(location == null) Log.i(TAG,"There is no location dumbass")
         }
 
-
-
-
-
     }
+
     // Monitors the state of the connection to the service.
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
 
@@ -413,6 +421,7 @@ class MainFragment : Fragment() {
         }
     }
 
+    //Gets the current user from Firebase Authentication.
     fun getCurrentUser() : UserBalance? {
         var userBalance: UserBalance? = null
         userBalanceViewModel.users.observe(viewLifecycleOwner) {
@@ -425,9 +434,12 @@ class MainFragment : Fragment() {
         return userBalance
     }
 
+    //Makes a snackbar
     private fun showMessage(message: String) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
+
+    //These two functions are used for building the address of the user based on their location
 
     private fun Address.toAddressString(): String {
         val address = this
@@ -459,7 +471,6 @@ class MainFragment : Fragment() {
                 }
             }
     }
-
 
 }
 

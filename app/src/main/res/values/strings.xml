@@ -39,4 +39,5 @@
     <string name="find_closest_button">Find Closest Scooter</string>
     <string name="current_scooter">Your currently rented scooter</string>
     <string name="delete_history_button">Delete ride history</string>
+    <string name="log_out_button">Log Out</string>
 </resources>
