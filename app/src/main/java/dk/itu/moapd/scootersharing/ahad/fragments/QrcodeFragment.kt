@@ -55,6 +55,7 @@ class QrcodeFragment : Fragment() {
     private var scooterName: String? = null
     private var currentLat: Double? = null
     private var currentLong: Double? = null
+    private var closestScooter: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +77,7 @@ class QrcodeFragment : Fragment() {
 
         currentLat = requireArguments().getString("currentLat")!!.toDouble()
         currentLong = requireArguments().getString("currentLong")!!.toDouble()
+        closestScooter = requireArguments().getString("closestScooter")
         Log.i(TAG,"Current Lat: " + currentLat + " Current Long: " + currentLong  )
 
         val scannerView = view.findViewById<CodeScannerView>(R.id.scanner_view)
@@ -183,9 +185,12 @@ class QrcodeFragment : Fragment() {
             }
 
             for(ride in it) {
-                if(ride.name!!.equals(scooterName) && !isRideExist) {
+                if (scooterName != closestScooter) {
+                    showMessage("You are not within the area of ${closestScooter}")
+                    return@observe
+                } else if(ride.name!!.equals(scooterName) && !isRideExist && scooterName == closestScooter) {
                     val id = scooterName?.get(4)?.toInt()
-                    val date = Calendar.getInstance().time.minutes.toLong()
+                    val date = Calendar.getInstance().timeInMillis
                     ride.isRide = true
                     val scooter = id?.let { Scooter(it, scooterName,"Unknown",date,date,currentLong,currentLat,currentLong,currentLat,true,scooterName + ".jpg") }
                     scooterViewModel.update(ride)

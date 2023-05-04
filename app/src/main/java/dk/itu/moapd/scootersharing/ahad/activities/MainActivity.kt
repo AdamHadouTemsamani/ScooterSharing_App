@@ -21,10 +21,13 @@
 
 package dk.itu.moapd.scootersharing.ahad.activities
 
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import dk.itu.moapd.scootersharing.ahad.fragments.MainFragment
 import dk.itu.moapd.scootersharing.ahad.R
+import dk.itu.moapd.scootersharing.ahad.application.TAG
 import dk.itu.moapd.scootersharing.ahad.databinding.ActivityMainBinding
 
 
@@ -66,10 +69,19 @@ class MainActivity : AppCompatActivity() {
         val mainFragment = MainFragment()
         setContentView(mainBinding.root)
 
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.fragment_container_view,mainFragment)
-            .commit()
+        if(savedInstanceState == null) {
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container_view,mainFragment)
+                .commit()
+        }
+
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) Log.i(this.TAG(), "Landscape.")
+        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) Log.i(this.TAG(), "Portrait.")
     }
 
 }

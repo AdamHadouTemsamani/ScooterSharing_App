@@ -216,27 +216,26 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
                                 val ourLocation = LatLng(currentLocation!!.latitude,currentLocation!!.longitude)
                                 val closestScooter = findClosestScooter(ourLocation,scootersList)
+
                                 var geopshere: Geosphere? = null
                                 for (geo in geofenceList) {
                                     if(closestScooter!!.name.equals(geo.name)) geopshere = geo
                                 }
-                                if(currentLocation != null && geopshere?.let { it1 ->
-                                        checkForGeofenceEntry(ourLocation,
-                                            it1
-                                        )
-                                    } == true && !isRideActive) {
-
+                                if (checkForGeofenceEntry(ourLocation,geopshere!!) && !isRideActive) {
                                     Log.i(TAG, "I am sending the following data: " + currentLocation?.latitude.toString())
                                     val fragment = QrcodeFragment()
                                     val args = Bundle()
                                     args.putString("currentLat",currentLocation!!.latitude.toString())
                                     args.putString("currentLong",currentLocation!!.longitude.toString())
+                                    args.putString("closestScooter",geopshere.name)
                                     fragment.arguments = args
                                     requireActivity().supportFragmentManager
                                         .beginTransaction()
                                         .replace(R.id.fragment_container_view,fragment)
                                         .addToBackStack(null)
                                         .commit()
+                                } else {
+                                    showMessage("You are not within the geosphere of a Scooter")
                                 }
                             } else {
                                 showMessage("You have removen your card. Please add a card. So you can pay for a scooter.")

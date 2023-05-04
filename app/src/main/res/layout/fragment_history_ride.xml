@@ -1,25 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".fragments.HistoryRideFragment">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <!-- List items using MaterialDesign Cards -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/history"
-        android:textAlignment="center"
-        android:textSize="24sp" />
+        android:layout_gravity="start"
+        android:orientation="vertical">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list_previous_rides"
-        android:layout_width="match_parent"
-        android:layout_height="642dp"
-        android:visibility="visible" />
+        <View
+            android:layout_height="10dp"
+            android:layout_width="match_parent" />
+
+        <!-- List items using MaterialDesign Cards -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/history"
+            android:textAlignment="center"
+            android:textSize="24sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list_previous_rides"
+            android:layout_width="match_parent"
+            android:layout_height="642dp"
+            android:visibility="visible" />
 
 
-</LinearLayout>
+
+    </LinearLayout>
+
+
+
+</ScrollView>

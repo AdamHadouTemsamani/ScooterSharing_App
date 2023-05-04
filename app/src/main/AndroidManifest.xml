@@ -40,22 +40,8 @@
             android:enabled="true"
             android:exported="false"/>
         <activity
-            android:name=".activities.UpdateRideActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.StartRideActivity"
-            android:exported="false" />
-        <activity
             android:name=".activities.LoginActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.HistoryRideActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.LocationActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.MapsActivity"
+            android:configChanges="layoutDirection|keyboardHidden|orientation|screenSize"
             android:exported="false" />
         <activity
             android:name=".activities.MainActivity"

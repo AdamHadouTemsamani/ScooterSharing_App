@@ -6,13 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
 import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
-import dk.itu.moapd.scootersharing.ahad.databinding.FragmentBalanceBinding
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentCardBinding
-import dk.itu.moapd.scootersharing.ahad.databinding.FragmentQrscannerBinding
+import dk.itu.moapd.scootersharing.ahad.model.CardViewModel
 import dk.itu.moapd.scootersharing.ahad.model.UserBalance
 import dk.itu.moapd.scootersharing.ahad.model.UserBalanceViewModel
 import dk.itu.moapd.scootersharing.ahad.model.UserBalanceViewModelFactory
@@ -31,6 +29,7 @@ class CardFragment : Fragment() {
         }
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var cardViewModel: CardViewModel
 
     private val userBalanceViewModel: UserBalanceViewModel by activityViewModels() {
         UserBalanceViewModelFactory((requireActivity().application as ScooterApplication).userRepository)
@@ -38,6 +37,9 @@ class CardFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        cardViewModel = ViewModelProvider(this).get(CardViewModel::class.java)
+
+
         auth = FirebaseAuth.getInstance()
     }
 
@@ -52,6 +54,9 @@ class CardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+
 
         with(binding) {
             addCardButton.setOnClickListener {

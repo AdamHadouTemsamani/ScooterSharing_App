@@ -1,14 +1,6 @@
 package dk.itu.moapd.scootersharing.ahad.utils
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat.checkSelfPermission
-import androidx.core.app.ActivityCompat.requestPermissions
-import androidx.core.content.ContextCompat
-import androidx.core.content.PermissionChecker
-import dk.itu.moapd.scootersharing.ahad.fragments.LocationFragment
-import java.util.ArrayList
 
 class UserPermissions(_context: Context) {
 

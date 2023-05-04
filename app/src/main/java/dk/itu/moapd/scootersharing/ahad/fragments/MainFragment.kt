@@ -142,15 +142,20 @@ class MainFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        //Fix main fragment twice when orientation change
+        if(savedInstanceState != null) {
+            val fragment = MainFragment()
+            requireActivity().supportFragmentManager
+                .popBackStack()
+        }
+
+
         _binding = FragmentMainBinding.inflate(inflater, container, false)
         // Define the recycler view layout manager and adapter
         binding.listRides.layoutManager = LinearLayoutManager(activity)
         // Collecting data from the dataset.
         adapter = CustomAdapter()
-        Log.i(TAG, "Current size of Scooter" + adapter.currentList.size)
-
         previousRidesAdapter = HistoryRideAdapter()
-
 
 
         val yourCurrentScooter = mutableListOf<Scooter>()
@@ -240,10 +245,8 @@ class MainFragment : Fragment() {
                     }
                     dialog.setPositiveButton("Accept") { dialog, which ->
                         val scooter = adapter.currentList[position]
+                        val diffTime = abs(scooter.startTime - Calendar.getInstance().timeInMillis)
                         Log.i(TAG, "Scooter URL" + scooter.URL)
-                        scooter.isRide = false
-                        scooter.endTime = Calendar.getInstance().time.minutes.toLong()
-                        val diffTime = abs(scooter.startTime - scooter.endTime)
                         val previousRide = History(
                             0, scooter.name,
                             scooter.location,
@@ -256,11 +259,13 @@ class MainFragment : Fragment() {
                             scooter.URL
                         ) //This needs to be auto incremented
                         val user = getCurrentUser()
-                        var userBalance = user!!.balance?.minus((diffTime * 2).toInt())
+                        var userBalance = user!!.balance?.minus((diffTime * 2).toDouble())
                         if (userBalance != null) {
                             if (userBalance < 0) {
                                 showMessage("Your account doesn't have enough balance. Please tank up.")
                             } else {
+                                scooter.isRide = false
+                                scooter.endTime = Calendar.getInstance().time.minutes.toLong()
                                 user.balance = user.balance?.minus((diffTime * 2).toInt())
                                 userBalanceViewModel.update(user)
                                 scooterViewModel.update(scooter)
@@ -461,4 +466,5 @@ class MainFragment : Fragment() {
 
 
 }
+
 

@@ -7,9 +7,6 @@ import android.widget.Toast
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
 import com.google.android.material.snackbar.Snackbar
-import dk.itu.moapd.scootersharing.ahad.activities.MapsActivity
-import dk.itu.moapd.scootersharing.ahad.fragments.MapsFragment
-import dk.itu.moapd.scootersharing.ahad.utils.NotificationHelper
 
 
 class GeofenceBroadcastReceiver(context: Context?) : BroadcastReceiver() {

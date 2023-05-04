@@ -1,18 +1,12 @@
 package dk.itu.moapd.scootersharing.ahad.fragments
 
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.core.view.doOnLayout
@@ -21,8 +15,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentCameraBinding
-import dk.itu.moapd.scootersharing.ahad.databinding.FragmentMainBinding
-import dk.itu.moapd.scootersharing.ahad.model.Scooter
 import java.io.File
 import java.io.FileInputStream
 import java.util.*

@@ -9,16 +9,15 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import dk.itu.moapd.scootersharing.ahad.R
 import dk.itu.moapd.scootersharing.ahad.application.ScooterApplication
 import dk.itu.moapd.scootersharing.ahad.databinding.FragmentBalanceBinding
-import dk.itu.moapd.scootersharing.ahad.databinding.FragmentQrscannerBinding
-import dk.itu.moapd.scootersharing.ahad.model.*
+import dk.itu.moapd.scootersharing.ahad.model.UserBalance
+import dk.itu.moapd.scootersharing.ahad.model.UserBalanceViewModel
+import dk.itu.moapd.scootersharing.ahad.model.UserBalanceViewModelFactory
 
 class BalanceFragment : Fragment() {
 

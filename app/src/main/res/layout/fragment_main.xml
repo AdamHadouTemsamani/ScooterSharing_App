@@ -1,90 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".fragments.MainFragment">
-
-    <View
-        android:id="@+id/view"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"/>
-
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp">
+        android:layout_gravity="start"
+        android:orientation="vertical">
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"/>
+
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/app_name"
+                android:textAlignment="center"
+                android:textSize="24sp"/>
+
+
+        </LinearLayout>
+
+
+        <Button
+            android:id="@+id/find_scooter_button"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="163dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:text="@string/find_scooter_button"
+            android:textSize="14sp"
+            app:icon="@drawable/baseline_electric_bike_24"
+            app:iconGravity="textStart" />
+
+
+        <Button
+            android:id="@+id/see_balance_button"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="161dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:text="@string/see_balance_button"
+            android:textSize="14sp"
+            app:icon="@drawable/baseline_credit_card_24"
+            app:iconGravity="textStart" />
+
+
+        <Button
+            android:id="@+id/history_ride_button"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="163dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:text="@string/history_ride_button"
+            android:textSize="14sp"
+            app:icon="@drawable/baseline_history_24"
+            app:iconGravity="textStart" />
+
+
+        <View
+            android:id="@+id/view2"
+            android:layout_width="match_parent"
+            android:layout_height="31dp" />
 
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/app_name"
+            android:layout_height="36dp"
+            android:text="@string/current_scooter"
             android:textAlignment="center"
-            android:textSize="24sp"/>
+            android:textSize="24sp" />
+
+        <!-- List items using MaterialDesign Cards -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list_rides"
+            android:layout_width="match_parent"
+            android:layout_height="310dp"
+            android:visibility="visible" />
 
 
     </LinearLayout>
-
-
-    <Button
-        android:id="@+id/find_scooter_button"
-        style="@style/Widget.Material3.Button"
-        android:layout_width="163dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="5dp"
-        android:text="@string/find_scooter_button"
-        android:textSize="14sp"
-        app:icon="@drawable/baseline_electric_bike_24"
-        app:iconGravity="textStart" />
-
-
-    <Button
-        android:id="@+id/see_balance_button"
-        style="@style/Widget.Material3.Button"
-        android:layout_width="161dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="5dp"
-        android:text="@string/see_balance_button"
-        android:textSize="14sp"
-        app:icon="@drawable/baseline_credit_card_24"
-        app:iconGravity="textStart" />
-
-
-    <Button
-        android:id="@+id/history_ride_button"
-        style="@style/Widget.Material3.Button"
-        android:layout_width="163dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="5dp"
-        android:text="@string/history_ride_button"
-        android:textSize="14sp"
-        app:icon="@drawable/baseline_history_24"
-        app:iconGravity="textStart" />
-
-
-    <View
-        android:id="@+id/view2"
-        android:layout_width="match_parent"
-        android:layout_height="31dp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="36dp"
-        android:text="@string/current_scooter"
-        android:textAlignment="center"
-        android:textSize="24sp" />
-
-    <!-- List items using MaterialDesign Cards -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list_rides"
-        android:layout_width="match_parent"
-        android:layout_height="310dp"
-        android:visibility="visible" />
-</LinearLayout>
+</ScrollView>
